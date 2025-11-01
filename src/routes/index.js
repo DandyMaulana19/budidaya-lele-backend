@@ -1,13 +1,15 @@
+import authController from "../controller/authcontroller.js";
+
 const routes = [
   {
     method: "GET",
-    url: "/hello",
+    url: "/login",
     handler: async (request, reply) => {
-      reply.send({ hello: "world" });
+      return authController.login(request, reply);
     },
   },
 ];
 
 routes.prefix = "/api";
 
-module.exports = routes;
+export default routes;

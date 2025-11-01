@@ -4,15 +4,19 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "generate": "npx drizzle-kit generate --name=init",
-    "migration": "npx drizzle-kit migrate"
+    "migration": "npx drizzle-kit migrate",
+    "seed": "node src/seeders/index.js"
   },
   "dependencies": {
     "@fastify/postgres": "^6.0.2",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "fastify": "^5.6.1",
     "nodemon": "^3.1.10",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.6"
