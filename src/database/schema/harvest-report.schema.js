@@ -8,9 +8,9 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { pool } from "./pool.schema.js";
-import { users } from "./users.schema.js";
+import { users } from "./user.schema.js";
 
-export const mortalityReport = pgTable("mortality_report", {
+export const harvestReport = pgTable("harvest_report", {
   id: uuid("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -21,29 +21,26 @@ export const mortalityReport = pgTable("mortality_report", {
   reportDate: date("report_date").notNull(),
   quantity: integer("quantity").notNull(),
   imageUrl: text("image_url").notNull(),
-  createdat: timestamp("created_at").defaultNow().notNull(),
-  updatedat: timestamp("updated_at").defaultNow().notNull(),
-  deletedat: timestamp("deleted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const poolRelations = relations(pool, ({ many }) => ({
-  mortalityReports: many(mortalityReport),
+  harvestReports: many(harvestReport),
 }));
 
 export const userRelations = relations(users, ({ many }) => ({
-  mortalityReports: many(mortalityReport),
+  harvestReports: many(harvestReport),
 }));
 
-export const mortalityReportRelations = relations(
-  mortalityReport,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [mortalityReport.userId],
-      references: [users.id],
-    }),
-    pool: one(pool, {
-      fields: [mortalityReport.poolId],
-      references: [pool.id],
-    }),
-  })
-);
+export const harvestReportRelations = relations(harvestReport, ({ one }) => ({
+  user: one(users, {
+    fields: [harvestReport.userId],
+    references: [users.id],
+  }),
+  pool: one(pool, {
+    fields: [harvestReport.poolId],
+    references: [pool.id],
+  }),
+}));

@@ -1,16 +1,16 @@
 import {
   pgTable,
   uuid,
-  text,
-  integer,
-  date,
   timestamp,
+  integer,
+  decimal,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { pool } from "./pool.schema.js";
-import { users } from "./users.schema.js";
+import { users } from "./user.schema.js";
 
-export const harvestReport = pgTable("harvest_report", {
+export const seedReport = pgTable("seed_report", {
   id: uuid("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -19,28 +19,32 @@ export const harvestReport = pgTable("harvest_report", {
     .notNull()
     .references(() => pool.id, { onDelete: "cascade" }),
   reportDate: date("report_date").notNull(),
-  quantity: integer("quantity").notNull(),
-  imageUrl: text("image_url").notNull(),
+  initialAmount: integer("initial_amount", { length: 10 }).notNull(),
+  currentAmount: integer("current_amount", { length: 10 }).notNull(),
+  averageWeight: decimal("average_weight", {
+    precision: 5,
+    scale: 2,
+  }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
 });
 
 export const poolRelations = relations(pool, ({ many }) => ({
-  harvestReports: many(harvestReport),
+  seedReports: many(seedReport),
 }));
 
 export const userRelations = relations(users, ({ many }) => ({
-  harvestReports: many(harvestReport),
+  seedReports: many(seedReport),
 }));
 
-export const harvestReportRelations = relations(harvestReport, ({ one }) => ({
+export const seedReportRelations = relations(seedReport, ({ one }) => ({
   user: one(users, {
-    fields: [harvestReport.userId],
+    fields: [seedReport.userId],
     references: [users.id],
   }),
   pool: one(pool, {
-    fields: [harvestReport.poolId],
+    fields: [seedReport.poolId],
     references: [pool.id],
   }),
 }));
