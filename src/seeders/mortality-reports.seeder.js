@@ -1,5 +1,5 @@
 import { db } from "../database/config/index.js";
-import { mortalityReport } from "../database/schema/mortalityReport.schema.js";
+import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
 import { randomUUID } from "crypto";
 
 export async function mortalityReportSeeder(userRows, poolRows) {
@@ -16,7 +16,7 @@ export async function mortalityReportSeeder(userRows, poolRows) {
     updatedAt: now,
   }));
 
-  const data = await db.insert(mortalityReport).values(seeder).returning();
+  const data = await db.insert(mortalityReports).values(seeder).returning();
 
   return data;
 }

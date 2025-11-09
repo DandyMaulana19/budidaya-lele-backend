@@ -6,7 +6,7 @@ import {
   decimal,
 } from "drizzle-orm/pg-core";
 
-export const pool = pgTable("pool", {
+export const pools = pgTable("pools", {
   id: uuid("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   temperature: decimal("temperature", { precision: 5, scale: 2 }).notNull(),

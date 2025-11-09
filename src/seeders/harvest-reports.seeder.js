@@ -1,5 +1,5 @@
 import { db } from "../database/config/index.js";
-import { harvestReport } from "../database/schema/harvestReport.schema.js";
+import { harvestReports } from "../database/schema/harvest-reports.schema.js";
 import { randomUUID } from "crypto";
 
 export async function harvestReportSeeder(userRows, poolRows) {
@@ -16,7 +16,7 @@ export async function harvestReportSeeder(userRows, poolRows) {
     updatedAt: now,
   }));
 
-  const data = await db.insert(harvestReport).values(seeder).returning();
+  const data = await db.insert(harvestReports).values(seeder).returning();
 
   return data;
 }

@@ -1,23 +1,21 @@
 import { db } from "../database/config/index.js";
-import { seedReport } from "../database/schema/seedReport.schema.js";
+import { feedReports } from "../database/schema/feed-reports.schema.js";
 import { randomUUID } from "crypto";
 
-export async function seedReportSeeder(userRows, poolRows) {
+export async function feedReportSeeder(userRows, poolRows) {
   const now = new Date();
 
   const seeder = poolRows.map((p, i) => ({
     id: randomUUID(),
     userId: userRows[i % userRows.length].id,
     poolId: p.id,
-    reportDate: "2025-01-01",
-    initialAmount: 1000,
-    currentAmount: 980,
-    averageWeight: 0.45,
+    reportDate: now,
+    imageUrl: "https://example.com/feed.jpg",
     createdAt: now,
     updatedAt: now,
   }));
 
-  const data = await db.insert(seedReport).values(seeder).returning();
+  const data = await db.insert(feedReports).values(seeder).returning();
 
   return data;
 }

@@ -1,13 +1,14 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "generate": "npx drizzle-kit generate --name=init",
     "migration": "npx drizzle-kit migrate",
     "seed": "node src/seeders/index.js"
   },
   "dependencies": {
+    "@fastify/jwt": "^10.0.0",
     "@fastify/postgres": "^6.0.2",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
