@@ -7,18 +7,17 @@ const seedReportSchema = z.object({
   reportDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }),
-  initialAmount: z.number().int().min(0),
-  currentAmount: z.number().int().min(0),
-  averageWeight: z.number().min(0),
+  initialAmount: z.number().int().min(0).positive(),
+  averageWeight: z.float32().min(0).positive(),
+  currentAmount: z.number().int().min(0).positive(),
 });
 
 export const createSeedReport = async (req, reply) => {
   const db = req.server?.db;
 
   const validation = seedReportSchema.safeParse(req.body);
-  if (!validation.success) {
+  if (!validation.success)
     return errorResponse(reply, validation.error.format(), null, 400);
-  }
 
   const { reportDate, initialAmount, currentAmount, averageWeight } =
     validation.data;

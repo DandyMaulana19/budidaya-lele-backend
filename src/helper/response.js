@@ -1,5 +1,3 @@
-import { success } from "zod";
-
 export const successResponse = (reply, message, data = null, status = 200) => {
   return reply.statusCode(status).send({
     success: true,
