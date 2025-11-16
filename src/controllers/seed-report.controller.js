@@ -21,7 +21,23 @@ export const getSeedReports = async (request, reply) => {
     .from(seedReports)
     .where(eq(seedReports.deletedAt, null));
 
-  return successResponse(reply, "Seed reports fetched", data, 200);
+  return successResponse(reply, "data fetched", data, 200);
+};
+
+export const getSeedReport = async (request, reply) => {
+  const db = request.server?.db;
+  const { id } = request.params;
+
+  const data = await db
+    .select()
+    .from(seedReports)
+    .where(eq(seedReports.id, id))
+    .where(eq(seedReports.deletedAt, null));
+
+  if (!data)
+    return errorResponse(reply, `data with id ${id} not found`, null, 404);
+
+  return successResponse(reply, "data fetched", data, 200);
 };
 
 export const createSeedReport = async (request, reply) => {
@@ -44,7 +60,7 @@ export const createSeedReport = async (request, reply) => {
 
     const data = await db.insert(seedReports).values(payload).returning();
 
-    return successResponse(reply, "seed report created", data, 201);
+    return successResponse(reply, "data created", data, 201);
   } catch (err) {
     request.log?.error(err);
     return errorResponse(reply, "internal server error", null, 500);
@@ -74,7 +90,7 @@ export const updateSeedReport = async (request, reply) => {
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
-    return successResponse(reply, "seed report updated", data, 200);
+    return successResponse(reply, "data updated", data, 200);
   } catch (error) {
     return errorResponse(reply, "internal server error", null, 500);
   }
@@ -93,7 +109,7 @@ export const deleteSeedReport = async (request, reply) => {
       .where(eq(seedReports.id, id))
       .returning();
 
-    return successResponse(reply, "seed report deleted", null, 200);
+    return successResponse(reply, "data deleted", null, 200);
   } catch (error) {
     return errorResponse(reply, "internal server error", null, 500);
   }
