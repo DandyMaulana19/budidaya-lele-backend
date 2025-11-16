@@ -45,7 +45,7 @@ export const createSeedReport = async (request, reply) => {
 
   const validation = seedReportSchema.safeParse(request.body);
   if (!validation.success)
-    return errorResponse(reply, validation.error.message, null, 400);
+    return errorResponse(reply, validation.error.message(), null, 400);
 
   try {
     const now = new Date();
