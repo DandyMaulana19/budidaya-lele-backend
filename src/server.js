@@ -5,6 +5,7 @@ import "dotenv/config";
 import authRoutes from "./routes/auth.route.js";
 import feedReportRoutes from "./routes/feed-report.route.js";
 import fastifyJwt from "@fastify/jwt";
+import UserRoutes from "./routes/user.route.js";
 
 const app = fastify({ logger: true });
 
@@ -20,6 +21,7 @@ const app = fastify({ logger: true });
 // });
 
 app.register(dbPlugin);
+app.register(UserRoutes);
 app.register(SeedReportRoutes);
 app.register(authRoutes);
 app.register(feedReportRoutes);
