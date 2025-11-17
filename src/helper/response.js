@@ -1,5 +1,5 @@
-export const successResponse = (reply, message, data = null, status = 200) => {
-  return reply.statusCode(status).send({
+export const successResponse = (reply, message, data, status = 200) => {
+  return reply.status(status).send({
     success: true,
     message,
     data,

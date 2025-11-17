@@ -1,11 +1,12 @@
 import fastify from "fastify";
-import dbPlugin from "./database/config.js";
-import SeedReportRoutes from "./routes/seed-report.route.js";
 import "dotenv/config";
-import authRoutes from "./routes/auth.route.js";
-import feedReportRoutes from "./routes/feed-report.route.js";
 import fastifyJwt from "@fastify/jwt";
-import UserRoutes from "./routes/user.route.js";
+import dbPlugin from "./database/config.js";
+import seedReportRoutes from "./routes/seed-report.route.js";
+// import authRoutes from "./routes/auth.route.js";
+import feedReportRoutes from "./routes/feed-report.route.js";
+import userRoutes from "./routes/user.route.js";
+import moratlityReportRoutes from "./routes/mortality-report.route.js";
 
 const app = fastify({ logger: true });
 
@@ -21,10 +22,11 @@ const app = fastify({ logger: true });
 // });
 
 app.register(dbPlugin);
-app.register(UserRoutes);
-app.register(SeedReportRoutes);
-app.register(authRoutes);
-app.register(feedReportRoutes);
+app.register(userRoutes, { prefix: "/api" });
+app.register(seedReportRoutes, { prefix: "/api" });
+// app.register(authRoutes, {prefix: "/api"});
+app.register(feedReportRoutes, { prefix: "/api" });
+app.register(moratlityReportRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {

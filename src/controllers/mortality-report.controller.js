@@ -1,33 +1,30 @@
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
-import { successResponse, errorResponse } from "../helper/response.js";
-import { seedReports } from "../database/schema/seed-reports.schema.js";
-import { seedReportSchema } from "../validations/seed-report.validation.js";
+import { errorResponse, successResponse } from "../helper/response.js";
+import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
+import { mortalityReportSchema } from "../validations/mortality-report.validation.js";
 
-export const getSeedReports = async (request, reply) => {
+export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;
 
   const data = await db
     .select()
-    .from(seedReports)
-    .where(isNull(seedReports.deletedAt));
-
-  if (!data) {
-    return successResponse(reply, "internal server error", data, 500);
-  }
-  console.log(data);
+    .from(mortalityReports)
+    .where(isNull(mortalityReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const getSeedReport = async (request, reply) => {
+export const getMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
   const data = await db
     .select()
-    .from(seedReports)
-    .where(and(eq(seedReports.id, id), isNull(seedReports.deletedAt)));
+    .from(mortalityReports)
+    .where(
+      and(eq(mortalityReports.id, id), isNull(mortalityReports.deletedAt))
+    );
 
   if (!data)
     return errorResponse(reply, `data with id ${id} not found`, null, 404);
@@ -35,10 +32,10 @@ export const getSeedReport = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const createSeedReport = async (request, reply) => {
+export const createMortalityReport = async (request, reply) => {
   const db = request.server?.db;
 
-  const validation = seedReportSchema.safeParse(request.body);
+  const validation = mortalityReportSchema.safeParse(request.body);
 
   if (!validation.success) {
     const issues = validation.error.issues;
@@ -52,29 +49,30 @@ export const createSeedReport = async (request, reply) => {
 
     const payload = {
       id: randomUUID(),
-      poolId: "4e276316-32c3-455e-b7b3-df61c429cfdc",
-      userId: "1054cf7b-ffb9-42e3-ad28-9917b8a00e30",
+      poolId: "fc0f38a2-4003-4db2-b1ed-d212df9bb725",
+      userId: "85c1ea3a-ea88-4ce8-9a61-6cf593c0df76",
       // userId: request.user.user_id
       // poolId: request.body.poolId,
       ...validation.data,
+      imageUrl: "https://example.com/mortality.jpg",
       createdAt: now,
       updatedAt: now,
     };
 
-    const data = await db.insert(seedReports).values(payload).returning();
+    const data = await db.insert(mortalityReports).values(payload).returning();
 
     return successResponse(reply, "data created", data, 201);
   } catch (err) {
     request.log?.error(err);
-    return errorResponse(reply, "internal server error", null, 500);
+    return errorResponse(reply, err, null, 500);
   }
 };
 
-export const updateSeedReport = async (request, reply) => {
+export const updateMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
-  const validation = seedReportSchema.safeParse(request.body);
+  const validation = mortalityReportSchema.safeParse(request.body);
 
   if (!validation.success) {
     const issues = validation.error.issues;
@@ -86,13 +84,14 @@ export const updateSeedReport = async (request, reply) => {
   try {
     const payload = {
       ...validation.data,
+      imageUrl: "https://example.com/mortality.jpg",
       updatedAt: new Date(),
     };
 
     const data = await db
-      .update(seedReports)
+      .update(mortalityReports)
       .set(payload)
-      .where(eq(seedReports.id, id))
+      .where(eq(mortalityReports.id, id))
       .returning();
 
     console.log(data);
@@ -106,7 +105,7 @@ export const updateSeedReport = async (request, reply) => {
   }
 };
 
-export const deleteSeedReport = async (request, reply) => {
+export const deleteMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
@@ -114,9 +113,9 @@ export const deleteSeedReport = async (request, reply) => {
     const date = new Date();
 
     await db
-      .update(seedReports)
+      .update(mortalityReports)
       .set({ deletedAt: date })
-      .where(eq(seedReports.id, id))
+      .where(eq(mortalityReports.id, id))
       .returning();
 
     return successResponse(reply, "data deleted", null, 200);
