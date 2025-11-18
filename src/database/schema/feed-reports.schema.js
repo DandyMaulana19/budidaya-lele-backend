@@ -11,9 +11,11 @@ export const feedReports = pgTable("feed_reports", {
   poolId: uuid("pool_id")
     .notNull()
     .references(() => pools.id, { onDelete: "cascade" }),
-  reportDate: timestamp("report_date").notNull(),
+  reportDate: timestamp("report_date", { mode: "string" }).notNull(),
   imageUrl: text("image_url").notNull(),
-  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at", { mode: "string" }),
 });
 
 export const poolRelations = relations(pools, ({ many }) => ({

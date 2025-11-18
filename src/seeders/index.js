@@ -1,24 +1,24 @@
-import { userSeeders } from "./users.seeder.js";
-import { poolSeeders } from "./pools.seeder.js";
-import { seedReportSeeders } from "./seed-reports.seeder.js";
-import { feedReportSeeders } from "./feed-reports.seeder.js";
-import { harvestReportSeeders } from "./harvest-reports.seeder.js";
-import { mortalityReportSeeders } from "./mortality-reports.seeder.js";
+import { userSeeder } from "./users.seeder.js";
+import { poolSeeder } from "./pools.seeder.js";
+import { seedReportSeeder } from "./seed-reports.seeder.js";
+import { feedReportSeeder } from "./feed-reports.seeder.js";
+import { harvestReportSeeder } from "./harvest-reports.seeder.js";
+import { mortalityReportSeeder } from "./mortality-reports.seeder.js";
 
 async function runSeeders() {
   try {
-    const userRows = await userSeeders();
+    const userRows = await userSeeder();
     console.log("✅ Users seeder");
-    const poolRows = await poolSeeders(userRows);
+    const poolRows = await poolSeeder(userRows);
     console.log("✅ Pool seeder");
 
-    await seedReportSeeders(userRows, poolRows);
+    await seedReportSeeder(userRows, poolRows);
     console.log("✅ Seed Report seeder");
-    await feedReportSeeders(userRows, poolRows);
+    await feedReportSeeder(userRows, poolRows);
     console.log("✅ Feed Report seeder");
-    await harvestReportSeeders(userRows, poolRows);
+    await harvestReportSeeder(userRows, poolRows);
     console.log("✅ Harvest Report seeder");
-    await mortalityReportSeeders(userRows, poolRows);
+    await mortalityReportSeeder(userRows, poolRows);
     console.log("✅ Mortality Report seeder");
 
     process.exit(0);

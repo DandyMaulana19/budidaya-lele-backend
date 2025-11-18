@@ -1,51 +1,134 @@
-import { z } from "zod";
 import { randomUUID } from "crypto";
-import { seedReports } from "../database/schema/seed-reports.schema.js";
+import { and, eq, isNull } from "drizzle-orm";
 import { successResponse, errorResponse } from "../helper/response.js";
+import { seedReports } from "../database/schema/seed-reports.schema.js";
+import { seedReportSchema } from "../validations/seed-report.validation.js";
 
-const seedReportSchema = z.object({
-  reportDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
-  }),
-  initialAmount: z.number().int().min(0).positive(),
-  averageWeight: z.float32().min(0).positive(),
-  currentAmount: z.number().int().min(0).positive(),
-});
+export const getSeedReports = async (request, reply) => {
+  const db = request.server?.db;
 
-export const createSeedReport = async (req, reply) => {
-  const db = req.server?.db;
+  const data = await db
+    .select()
+    .from(seedReports)
+    .where(isNull(seedReports.deletedAt));
 
-  const validation = seedReportSchema.safeParse(req.body);
-  if (!validation.success)
-    return errorResponse(reply, validation.error.format(), null, 400);
+  if (!data) {
+    return successResponse(reply, "internal server error", data, 500);
+  }
+  console.log(data);
 
-  const { reportDate, initialAmount, currentAmount, averageWeight } =
-    validation.data;
+  return successResponse(reply, "data fetched", data, 200);
+};
 
-  const userId = req.user?.id || req.body.userId;
-  if (!userId) {
-    return errorResponse(reply, "Missing or unauthorized user", null, 401);
+export const getSeedReport = async (request, reply) => {
+  const db = request.server?.db;
+  const { id } = request.params;
+
+  const data = await db
+    .select()
+    .from(seedReports)
+    .where(and(eq(seedReports.id, id), isNull(seedReports.deletedAt)));
+
+  if (!data)
+    return errorResponse(reply, `data with id ${id} not found`, null, 404);
+
+  return successResponse(reply, "data fetched", data, 200);
+};
+
+export const createSeedReport = async (request, reply) => {
+  const db = request.server?.db;
+
+  const validation = seedReportSchema.safeParse(request.body);
+
+  if (!validation.success) {
+    const issues = validation.error.issues;
+    const errorMessages = issues.map((issue) => issue.message);
+
+    return errorResponse(reply, errorMessages, null, 400);
   }
 
   try {
-    const now = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
       id: randomUUID(),
-      userId,
-      reportDate,
-      initialAmount,
-      currentAmount,
-      averageWeight,
+      poolId: "4e276316-32c3-455e-b7b3-df61c429cfdc",
+      userId: "1054cf7b-ffb9-42e3-ad28-9917b8a00e30",
+      // userId: request.user.user_id
+      // poolId: request.body.poolId,
+      ...validation.data,
       createdAt: now,
       updatedAt: now,
     };
 
     const data = await db.insert(seedReports).values(payload).returning();
 
-    return successResponse(reply, "Seed report created", data, 201);
+    return successResponse(reply, "data created", data, 201);
   } catch (err) {
-    req.log?.error(err);
-    return errorResponse(reply, "Internal server error", null, 500);
+    request.log?.error(err);
+    return errorResponse(reply, "internal server error", null, 500);
+  }
+};
+
+export const updateSeedReport = async (request, reply) => {
+  const db = request.server?.db;
+  const { id } = request.params;
+
+  const validation = seedReportSchema.safeParse(request.body);
+
+  if (!validation.success) {
+    const issues = validation.error.issues;
+    const errorMessages = issues.map((issue) => issue.message);
+
+    return errorResponse(reply, errorMessages, null, 400);
+  }
+
+  try {
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
+    const payload = {
+      ...validation.data,
+      updatedAt: now,
+    };
+
+    const data = await db
+      .update(seedReports)
+      .set(payload)
+      .where(eq(seedReports.id, id))
+      .returning();
+
+    console.log(data);
+
+    if (!data || data.length === 0)
+      return errorResponse(reply, `data with id ${id} not found`, null, 404);
+
+    return successResponse(reply, "data updated", data, 200);
+  } catch (error) {
+    return errorResponse(reply, error, null, 500);
+  }
+};
+
+export const deleteSeedReport = async (request, reply) => {
+  const db = request.server?.db;
+  const { id } = request.params;
+
+  try {
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
+    await db
+      .update(seedReports)
+      .set({ deletedAt: now })
+      .where(eq(seedReports.id, id))
+      .returning();
+
+    return successResponse(reply, "data deleted", null, 200);
+  } catch (error) {
+    return errorResponse(reply, "internal server error", null, 500);
   }
 };

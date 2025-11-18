@@ -25,9 +25,9 @@ export const seedReports = pgTable("seed_reports", {
     precision: 5,
     scale: 2,
   }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at", { mode: "string" }),
 });
 
 export const poolRelations = relations(pools, ({ many }) => ({

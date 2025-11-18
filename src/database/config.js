@@ -8,6 +8,7 @@ import * as schema from "./schema/index.js";
 export default fp(async (fastify, opts) => {
   try {
     const client = postgres(process.env.URL_POSTGRES);
+    await client`SET TIMEZONE TO 'Asia/Jakarta'`;
     const db = drizzle(client, { schema });
     fastify.decorate("db", db);
   } catch (error) {

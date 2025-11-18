@@ -1,28 +1,30 @@
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { errorResponse, successResponse } from "../helper/response.js";
-import { feedReports } from "../database/schema/feed-reports.schema.js";
-import { feedReportSchema } from "../validations/feed-report.validation.js";
+import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
+import { mortalityReportSchema } from "../validations/mortality-report.validation.js";
 
-export const getFeedReports = async (request, reply) => {
+export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;
 
   const data = await db
     .select()
-    .from(feedReports)
-    .where(isNull(feedReports.deletedAt));
+    .from(mortalityReports)
+    .where(isNull(mortalityReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const getFeedReport = async (request, reply) => {
+export const getMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
   const data = await db
     .select()
-    .from(feedReports)
-    .where(and(eq(feedReports.id, id), isNull(feedReports.deletedAt)));
+    .from(mortalityReports)
+    .where(
+      and(eq(mortalityReports.id, id), isNull(mortalityReports.deletedAt))
+    );
 
   if (!data)
     return errorResponse(reply, `data with id ${id} not found`, null, 404);
@@ -30,10 +32,10 @@ export const getFeedReport = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const createFeedReport = async (request, reply) => {
+export const createMortalityReport = async (request, reply) => {
   const db = request.server?.db;
 
-  const validation = feedReportSchema.safeParse(request.body);
+  const validation = mortalityReportSchema.safeParse(request.body);
 
   if (!validation.success) {
     const issues = validation.error.issues;
@@ -49,30 +51,30 @@ export const createFeedReport = async (request, reply) => {
 
     const payload = {
       id: randomUUID(),
-      poolId: "10b400b2-2044-401c-909b-09e677844b56",
-      userId: "740fcf3d-6945-42d9-856b-5ac7d7eeddd5",
+      poolId: "fc0f38a2-4003-4db2-b1ed-d212df9bb725",
+      userId: "85c1ea3a-ea88-4ce8-9a61-6cf593c0df76",
       // userId: request.user.user_id
       // poolId: request.body.poolId,
-      reportDate: validation.data.reportDate,
+      ...validation.data,
       imageUrl: "https://example.com/mortality.jpg",
       createdAt: now,
       updatedAt: now,
     };
 
-    const data = await db.insert(feedReports).values(payload).returning();
+    const data = await db.insert(mortalityReports).values(payload).returning();
 
     return successResponse(reply, "data created", data, 201);
   } catch (err) {
     request.log?.error(err);
-    return errorResponse(reply, "internal server error", null, 500);
+    return errorResponse(reply, err, null, 500);
   }
 };
 
-export const updateFeedReport = async (request, reply) => {
+export const updateMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
-  const validation = feedReportSchema.safeParse(request.body);
+  const validation = mortalityReportSchema.safeParse(request.body);
 
   if (!validation.success) {
     const issues = validation.error.issues;
@@ -87,14 +89,15 @@ export const updateFeedReport = async (request, reply) => {
       .replace(" ", "T");
 
     const payload = {
-      reportDate: validation.data.reportDate,
+      ...validation.data,
+      imageUrl: "https://example.com/mortality.jpg",
       updatedAt: now,
     };
 
     const data = await db
-      .update(feedReports)
+      .update(mortalityReports)
       .set(payload)
-      .where(eq(feedReports.id, id))
+      .where(eq(mortalityReports.id, id))
       .returning();
 
     console.log(data);
@@ -108,7 +111,7 @@ export const updateFeedReport = async (request, reply) => {
   }
 };
 
-export const deleteFeedReport = async (request, reply) => {
+export const deleteMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
@@ -118,9 +121,9 @@ export const deleteFeedReport = async (request, reply) => {
       .replace(" ", "T");
 
     await db
-      .update(feedReports)
+      .update(mortalityReports)
       .set({ deletedAt: now })
-      .where(eq(feedReports.id, id))
+      .where(eq(mortalityReports.id, id))
       .returning();
 
     return successResponse(reply, "data deleted", null, 200);
