@@ -3,7 +3,7 @@ import { seedReports } from "../database/schema/seed-reports.schema.js";
 import { randomUUID } from "crypto";
 
 export async function seedReportSeeder(userRows, poolRows) {
-  const now = new Date();
+  const now = new Date().toISOString();
 
   const seeder = poolRows.map((p, i) => ({
     id: randomUUID(),
