@@ -44,19 +44,20 @@ export const createFeedReport = async (request, reply) => {
   }
 
   try {
-    const now = new Date();
-    const reportDate = parse(validation.data.reportDate);
+    const date = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
       id: randomUUID(),
-      poolId: "766c2b09-a780-45e0-9518-bd03986c93b6",
-      userId: "0fd00030-c5c0-4ce7-ba66-6dd79bdbcad4",
+      poolId: "10b400b2-2044-401c-909b-09e677844b56",
+      userId: "740fcf3d-6945-42d9-856b-5ac7d7eeddd5",
       // userId: request.user.user_id
       // poolId: request.body.poolId,
-      reportDate,
+      reportDate: validation.data.reportDate,
       imageUrl: "https://example.com/mortality.jpg",
-      createdAt: now,
-      updatedAt: now,
+      createdAt: date,
+      updatedAt: date,
     };
 
     const data = await db.insert(feedReports).values(payload).returning();
@@ -82,11 +83,13 @@ export const updateFeedReport = async (request, reply) => {
   }
 
   try {
-    const reportDate = parse(validation.data.reportDate);
+    const date = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
-      reportDate: reportDate,
-      updatedAt: new Date(),
+      reportDate: validation.data.reportDate,
+      updatedAt: date,
     };
 
     const data = await db

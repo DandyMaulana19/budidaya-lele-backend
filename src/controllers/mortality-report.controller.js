@@ -45,7 +45,9 @@ export const createMortalityReport = async (request, reply) => {
   }
 
   try {
-    const now = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
       id: randomUUID(),
@@ -82,10 +84,14 @@ export const updateMortalityReport = async (request, reply) => {
   }
 
   try {
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
     const payload = {
       ...validation.data,
       imageUrl: "https://example.com/mortality.jpg",
-      updatedAt: new Date(),
+      updatedAt: now,
     };
 
     const data = await db

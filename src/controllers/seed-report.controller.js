@@ -48,7 +48,9 @@ export const createSeedReport = async (request, reply) => {
   }
 
   try {
-    const now = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
       id: randomUUID(),
@@ -84,9 +86,13 @@ export const updateSeedReport = async (request, reply) => {
   }
 
   try {
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
     const payload = {
       ...validation.data,
-      updatedAt: new Date(),
+      updatedAt: now,
     };
 
     const data = await db
