@@ -116,11 +116,13 @@ export const deleteMortalityReport = async (request, reply) => {
   const { id } = request.params;
 
   try {
-    const date = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     await db
       .update(mortalityReports)
-      .set({ deletedAt: date })
+      .set({ deletedAt: now })
       .where(eq(mortalityReports.id, id))
       .returning();
 

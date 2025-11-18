@@ -44,7 +44,7 @@ export const createFeedReport = async (request, reply) => {
   }
 
   try {
-    const date = new Date()
+    const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
@@ -56,8 +56,8 @@ export const createFeedReport = async (request, reply) => {
       // poolId: request.body.poolId,
       reportDate: validation.data.reportDate,
       imageUrl: "https://example.com/mortality.jpg",
-      createdAt: date,
-      updatedAt: date,
+      createdAt: now,
+      updatedAt: now,
     };
 
     const data = await db.insert(feedReports).values(payload).returning();
@@ -83,13 +83,13 @@ export const updateFeedReport = async (request, reply) => {
   }
 
   try {
-    const date = new Date()
+    const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
     const payload = {
       reportDate: validation.data.reportDate,
-      updatedAt: date,
+      updatedAt: now,
     };
 
     const data = await db
@@ -114,11 +114,13 @@ export const deleteFeedReport = async (request, reply) => {
   const { id } = request.params;
 
   try {
-    const date = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     await db
       .update(feedReports)
-      .set({ deletedAt: date })
+      .set({ deletedAt: now })
       .where(eq(feedReports.id, id))
       .returning();
 

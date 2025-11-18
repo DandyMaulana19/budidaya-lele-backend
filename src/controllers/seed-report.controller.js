@@ -117,11 +117,13 @@ export const deleteSeedReport = async (request, reply) => {
   const { id } = request.params;
 
   try {
-    const date = new Date();
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     await db
       .update(seedReports)
-      .set({ deletedAt: date })
+      .set({ deletedAt: now })
       .where(eq(seedReports.id, id))
       .returning();
 
