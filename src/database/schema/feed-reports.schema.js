@@ -13,6 +13,8 @@ export const feedReports = pgTable("feed_reports", {
     .references(() => pools.id, { onDelete: "cascade" }),
   reportDate: timestamp("report_date").notNull(),
   imageUrl: text("image_url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
 });
 
