@@ -14,8 +14,8 @@ export const poolAccesses = pgTable("pool_accesses", {
     .notNull()
     .references(() => pools.id, { onDelete: "cascade" }),
 
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
 });
 
 export const poolRelations = relations(pools, ({ many }) => ({

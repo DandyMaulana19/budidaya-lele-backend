@@ -11,6 +11,6 @@ export const pools = pgTable("pools", {
   name: varchar("name", { length: 255 }).notNull(),
   temperature: decimal("temperature", { precision: 5, scale: 2 }).notNull(),
   acidity: decimal("acidity", { precision: 5, scale: 2 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
 });

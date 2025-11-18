@@ -21,9 +21,9 @@ export const mortalityReports = pgTable("mortality_reports", {
   reportDate: date("report_date").notNull(),
   quantity: integer("quantity").notNull(),
   imageUrl: text("image_url").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at", { mode: "string" }),
 });
 
 export const poolRelations = relations(pools, ({ many }) => ({
