@@ -3,7 +3,7 @@ import { pools } from "../database/schema/pools.schema.js";
 import { randomUUID } from "crypto";
 
 export async function poolSeeder(userRows) {
-  const now = new Date();
+  const now = new Date().toISOString();
 
   const employees = userRows.filter((u) => u.role === "employee");
 

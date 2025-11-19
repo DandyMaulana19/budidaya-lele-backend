@@ -5,7 +5,7 @@ import dbPlugin from "./database/config.js";
 import seedReportRoutes from "./routes/seed-report.route.js";
 // import authRoutes from "./routes/auth.route.js";
 import feedReportRoutes from "./routes/feed-report.route.js";
-import userRoutes from "./routes/user.route.js";
+// import userRoutes from "./routes/user.route.js";
 import moratlityReportRoutes from "./routes/mortality-report.route.js";
 import harvestReportRoutes from "./routes/harvest-report.route.js";
 
@@ -23,7 +23,7 @@ const app = fastify({ logger: true });
 // });
 
 app.register(dbPlugin);
-app.register(userRoutes, { prefix: "/api" });
+// app.register(userRoutes, { prefix: "/api" });
 app.register(seedReportRoutes, { prefix: "/api" });
 // app.register(authRoutes, {prefix: "/api"});
 app.register(feedReportRoutes, { prefix: "/api" });

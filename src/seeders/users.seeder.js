@@ -3,7 +3,7 @@ import { users } from "../database/schema/users.schema.js";
 import { randomUUID } from "crypto";
 
 export async function userSeeder() {
-  const now = new Date();
+  const now = new Date().toISOString();
 
   const data = await db
     .insert(users)

@@ -3,7 +3,7 @@ import { harvestReports } from "../database/schema/harvest-reports.schema.js";
 import { randomUUID } from "crypto";
 
 export async function harvestReportSeeder(userRows, poolRows) {
-  const now = new Date();
+  const now = new Date().toISOString();
 
   const seeder = poolRows.map((p, i) => ({
     id: randomUUID(),
