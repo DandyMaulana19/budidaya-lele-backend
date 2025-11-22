@@ -1,8 +1,11 @@
+import fs from "fs";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
+import { generateUploadPath } from "../helper/utils.js";
 import { errorResponse, successResponse } from "../helper/response.js";
 import { feedReports } from "../database/schema/feed-reports.schema.js";
 import { feedReportSchema } from "../validations/feed-report.validation.js";
+import { fileSchema } from "../validations/file.validation.js";
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;
@@ -32,36 +35,66 @@ export const getFeedReport = async (request, reply) => {
 
 export const createFeedReport = async (request, reply) => {
   const db = request.server?.db;
+  const body = request.body;
 
-  const validation = feedReportSchema.safeParse(request.body);
+  if (!body || !body.imageUrl) {
+    return errorResponse(reply, "imageUrl file is required", null, 400);
+  }
 
-  if (!validation.success) {
-    const issues = validation.error.issues;
-    const errorMessages = issues.map((issue) => issue.message);
+  const fileValidation = fileSchema.safeParse({
+    fieldname: body.imageUrl.fieldname,
+    mimetype: body.imageUrl.mimetype,
+    filename: body.imageUrl.filename,
+  });
 
+  const validation = feedReportSchema.safeParse({
+    reportDate: body.reportDate.value,
+  });
+
+  if (!fileValidation.success || !validation.success) {
+    const fileIssues = fileValidation.success
+      ? []
+      : fileValidation.error.issues;
+    const validationIssues = validation.success ? [] : validation.error.issues;
+    const errorMessages = [...fileIssues, ...validationIssues].map(
+      (issue) => issue.message
+    );
     return errorResponse(reply, errorMessages, null, 400);
   }
 
   try {
+    const { filePath, publicPath } = await generateUploadPath(
+      body.imageUrl.filename,
+      "feed-reports",
+      body.imageUrl.mimetype
+    );
+
+    const buffer = await body.imageUrl.toBuffer();
+    fs.writeFileSync(filePath, buffer);
+
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
+    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+
+    if (!userId) {
+      return errorResponse(reply, "User ID is required", null, 400);
+    }
+
     const payload = {
       id: randomUUID(),
-      poolId: "10b400b2-2044-401c-909b-09e677844b56",
-      userId: "740fcf3d-6945-42d9-856b-5ac7d7eeddd5",
-      // userId: request.user.user_id
-      // poolId: request.body.poolId,
+      poolId: body.poolId?.value || "a72ffcdb-1f41-44b8-9801-9446ea9023a6",
+      userId: userId,
       reportDate: validation.data.reportDate,
-      imageUrl: "https://example.com/mortality.jpg",
+      imageUrl: publicPath,
       createdAt: now,
       updatedAt: now,
     };
 
-    const data = await db.insert(feedReports).values(payload).returning();
+    const result = await db.insert(feedReports).values(payload).returning();
 
-    return successResponse(reply, "data created", data, 201);
+    return successResponse(reply, "data created", result, 201);
   } catch (err) {
     request.log?.error(err);
     return errorResponse(reply, "internal server error", null, 500);

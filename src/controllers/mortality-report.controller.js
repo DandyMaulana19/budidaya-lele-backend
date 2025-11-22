@@ -1,8 +1,11 @@
+import fs from "fs";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
+import { generateUploadPath } from "../helper/utils.js";
 import { errorResponse, successResponse } from "../helper/response.js";
 import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
 import { mortalityReportSchema } from "../validations/mortality-report.validation.js";
+import { fileSchema } from "../validations/file.validation.js";
 
 export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;
@@ -34,29 +37,63 @@ export const getMortalityReport = async (request, reply) => {
 
 export const createMortalityReport = async (request, reply) => {
   const db = request.server?.db;
+  const body = request.body;
 
-  const validation = mortalityReportSchema.safeParse(request.body);
+  if (!body || !body.imageUrl) {
+    return errorResponse(reply, "imageUrl file is required", null, 400);
+  }
 
-  if (!validation.success) {
-    const issues = validation.error.issues;
-    const errorMessages = issues.map((issue) => issue.message);
+  const fileValidation = fileSchema.safeParse({
+    fieldname: body.imageUrl.fieldname,
+    mimetype: body.imageUrl.mimetype,
+    filename: body.imageUrl.filename,
+  });
 
+  const validation = mortalityReportSchema.safeParse({
+    reportDate: body.reportDate.value,
+    quantity: Number(body.quantity),
+  });
+
+  if (!fileValidation.success || !validation.success) {
+    const fileIssues = fileValidation.success
+      ? []
+      : fileValidation.error.issues;
+    const validationIssues = validation.success ? [] : validation.error.issues;
+    const errorMessages = [...fileIssues, ...validationIssues].map(
+      (issue) => issue.message
+    );
+    request.log?.error("Validation errors:", errorMessages);
     return errorResponse(reply, errorMessages, null, 400);
   }
 
   try {
+    const { filePath, publicPath } = await generateUploadPath(
+      body.imageUrl.filename,
+      "mortality-reports",
+      body.imageUrl.mimetype
+    );
+
+    const buffer = await body.imageUrl.toBuffer();
+    fs.writeFileSync(filePath, buffer);
+
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
+    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+
+    if (!userId) {
+      return errorResponse(reply, "User ID is required", null, 400);
+    }
+
     const payload = {
       id: randomUUID(),
-      poolId: "fc0f38a2-4003-4db2-b1ed-d212df9bb725",
-      userId: "85c1ea3a-ea88-4ce8-9a61-6cf593c0df76",
+      poolId: "a72ffcdb-1f41-44b8-9801-9446ea9023a6",
+      userId: userId,
       // userId: request.user.user_id
       // poolId: request.body.poolId,
       ...validation.data,
-      imageUrl: "https://example.com/mortality.jpg",
+      imageUrl: publicPath,
       createdAt: now,
       updatedAt: now,
     };

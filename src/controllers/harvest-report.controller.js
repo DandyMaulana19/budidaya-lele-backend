@@ -1,13 +1,19 @@
+import fs from "fs";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
+import { generateUploadPath } from "../helper/utils.js";
 import { errorResponse, successResponse } from "../helper/response.js";
 import { harvestReports } from "../database/schema/harvest-reports.schema.js";
 import { harvestReportSchema } from "../validations/harvest-report.validation.js";
+import { fileSchema } from "../validations/file.validation.js";
 
 export const getHarvestReports = async (request, reply) => {
   const db = request.server?.db;
 
-  const data = await db.select().from(harvestReports).where(isNull(harvestReports.deletedAt));
+  const data = await db
+    .select()
+    .from(harvestReports)
+    .where(isNull(harvestReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -21,31 +27,71 @@ export const getHarvestReport = async (request, reply) => {
     .from(harvestReports)
     .where(and(eq(harvestReports.id, id), isNull(harvestReports.deletedAt)));
 
-  if (!data) return errorResponse(reply, `data with id ${id} not found`, null, 404);
+  if (!data)
+    return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
   return successResponse(reply, "data fetched", data, 200);
 };
 
 export const createHarvestReport = async (request, reply) => {
   const db = request.server?.db;
+  const body = request.body;
 
-  const validation = harvestReportSchema.safeParse(request.body);
+  if (!body || !body.imageUrl) {
+    return errorResponse(reply, "imageUrl file is required", null, 400);
+  }
 
-  if (!validation.success) {
-    const issues = validation.error.issues;
-    const errorMessages = issues.map((issue) => issue.message);
+  const fileValidation = fileSchema.safeParse({
+    fieldname: body.imageUrl.fieldname,
+    mimetype: body.imageUrl.mimetype,
+    filename: body.imageUrl.filename,
+  });
+
+  const validation = harvestReportSchema.safeParse({
+    reportDate: body.reportDate.value,
+    quantity: Number(body.quantity.value),
+  });
+
+  if (!fileValidation.success || !validation.success) {
+    const fileIssues = fileValidation.success
+      ? []
+      : fileValidation.error.issues;
+    const validationIssues = validation.success ? [] : validation.error.issues;
+    const errorMessages = [...fileIssues, ...validationIssues].map(
+      (issue) => issue.message
+    );
+    request.log?.error("Validation errors:", errorMessages);
     return errorResponse(reply, errorMessages, null, 400);
   }
 
   try {
-    const now = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" }).replace(" ", "T");
+    const { filePath, publicPath } = await generateUploadPath(
+      body.imageUrl.filename,
+      "harvest-reports",
+      body.imageUrl.mimetype
+    );
+
+    const buffer = await body.imageUrl.toBuffer();
+    fs.writeFileSync(filePath, buffer);
+
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
+    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+
+    if (!userId) {
+      return errorResponse(reply, "User ID is required", null, 400);
+    }
 
     const payload = {
       id: randomUUID(),
-      userId: request.body.userId,
-      poolId: request.body.poolId,
+      poolId: "a72ffcdb-1f41-44b8-9801-9446ea9023a6",
+      userId: userId,
+      // userId: request.user.user_id
+      // poolId: request.body.poolId,
       ...validation.data,
-      imageUrl: "https://example.com/harvest.jpg",
+      imageUrl: publicPath,
       createdAt: now,
       updatedAt: now,
     };
@@ -72,7 +118,9 @@ export const updateHarvestReport = async (request, reply) => {
   }
 
   try {
-    const now = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" }).replace(" ", "T");
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
 
     const payload = {
       ...validation.data,
@@ -80,11 +128,16 @@ export const updateHarvestReport = async (request, reply) => {
       updatedAt: now,
     };
 
-    const data = await db.update(harvestReports).set(payload).where(eq(harvestReports.id, id)).returning();
+    const data = await db
+      .update(harvestReports)
+      .set(payload)
+      .where(eq(harvestReports.id, id))
+      .returning();
 
     console.log(data);
 
-    if (!data || data.length === 0) return errorResponse(reply, `data with id ${id} not found`, null, 404);
+    if (!data || data.length === 0)
+      return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
     return successResponse(reply, "data updated", data, 200);
   } catch (error) {
@@ -103,7 +156,11 @@ export const deleteHarvestReport = async (request, reply) => {
       })
       .replace(" ", "T");
 
-    await db.update(harvestReports).set({ deletedAt: now }).where(eq(harvestReports.id, id)).returning();
+    await db
+      .update(harvestReports)
+      .set({ deletedAt: now })
+      .where(eq(harvestReports.id, id))
+      .returning();
   } catch (error) {
     return errorResponse(reply, "internal server error", null, 500);
   }

@@ -1,6 +1,7 @@
 /node_modules/
 /dist/
 /drizzle/
+src/uploads/
 
 .env
 .DS_Store
