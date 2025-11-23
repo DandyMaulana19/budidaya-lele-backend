@@ -22,15 +22,21 @@ export const getHarvestReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
-  const data = await db
-    .select()
-    .from(harvestReports)
-    .where(and(eq(harvestReports.id, id), isNull(harvestReports.deletedAt)));
+  try {
+    const data = await db
+      .select()
+      .from(harvestReports)
+      .where(and(eq(harvestReports.id, id), isNull(harvestReports.deletedAt)));
 
-  if (!data)
-    return errorResponse(reply, `data with id ${id} not found`, null, 404);
+    if (data.length === 0)
+      return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
-  return successResponse(reply, "data fetched", data, 200);
+    return successResponse(reply, "data fetched", data, 200);
+  } catch (error) {
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
+  }
 };
 
 export const createHarvestReport = async (request, reply) => {
@@ -162,6 +168,8 @@ export const deleteHarvestReport = async (request, reply) => {
       .where(eq(harvestReports.id, id))
       .returning();
   } catch (error) {
-    return errorResponse(reply, "internal server error", null, 500);
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };

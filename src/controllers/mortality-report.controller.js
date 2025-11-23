@@ -22,17 +22,23 @@ export const getMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
-  const data = await db
-    .select()
-    .from(mortalityReports)
-    .where(
-      and(eq(mortalityReports.id, id), isNull(mortalityReports.deletedAt))
-    );
+  try {
+    const data = await db
+      .select()
+      .from(mortalityReports)
+      .where(
+        and(eq(mortalityReports.id, id), isNull(mortalityReports.deletedAt))
+      );
 
-  if (!data)
-    return errorResponse(reply, `data with id ${id} not found`, null, 404);
+    if (data.length === 0)
+      return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
-  return successResponse(reply, "data fetched", data, 200);
+    return successResponse(reply, "data fetched", data, 200);
+  } catch (error) {
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
+  }
 };
 
 export const createMortalityReport = async (request, reply) => {
@@ -165,6 +171,8 @@ export const deleteMortalityReport = async (request, reply) => {
 
     return successResponse(reply, "data deleted", null, 200);
   } catch (error) {
-    return errorResponse(reply, "internal server error", null, 500);
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };

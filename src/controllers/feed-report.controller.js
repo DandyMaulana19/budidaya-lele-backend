@@ -22,15 +22,21 @@ export const getFeedReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
 
-  const data = await db
-    .select()
-    .from(feedReports)
-    .where(and(eq(feedReports.id, id), isNull(feedReports.deletedAt)));
+  try {
+    const data = await db
+      .select()
+      .from(feedReports)
+      .where(and(eq(feedReports.id, id), isNull(feedReports.deletedAt)));
 
-  if (!data)
-    return errorResponse(reply, `data with id ${id} not found`, null, 404);
+    if (data.length === 0 || error.cause.code === "22P02")
+      return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
-  return successResponse(reply, "data fetched", data, 200);
+    return successResponse(reply, "data fetched", data, 200);
+  } catch (error) {
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
+  }
 };
 
 export const createFeedReport = async (request, reply) => {
@@ -158,6 +164,8 @@ export const deleteFeedReport = async (request, reply) => {
 
     return successResponse(reply, "data deleted", null, 200);
   } catch (error) {
-    return errorResponse(reply, "internal server error", null, 500);
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
