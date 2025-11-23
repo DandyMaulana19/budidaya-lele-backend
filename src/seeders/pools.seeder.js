@@ -21,6 +21,8 @@ export async function poolSeeder(userRows) {
     };
   });
 
+  await db.delete(pools).execute();
+
   const data = await db.insert(pools).values(seeder).returning();
 
   return data;

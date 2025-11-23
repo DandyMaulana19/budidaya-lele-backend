@@ -5,6 +5,8 @@ import { randomUUID } from "crypto";
 export async function harvestReportSeeder(userRows, poolRows) {
   const now = new Date().toISOString();
 
+  await db.delete(harvestReports).execute();
+
   const seeder = poolRows.map((p, i) => ({
     id: randomUUID(),
     userId: userRows[i % userRows.length].id,

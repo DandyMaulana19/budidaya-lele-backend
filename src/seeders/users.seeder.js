@@ -5,6 +5,8 @@ import { randomUUID } from "crypto";
 export async function userSeeder() {
   const now = new Date().toISOString();
 
+  await db.delete(users).execute();
+
   const data = await db
     .insert(users)
     .values([
@@ -21,7 +23,7 @@ export async function userSeeder() {
         id: randomUUID(),
         name: "Employee User 1",
         password: "password123",
-        email: "employee@example.com",
+        email: "employee1@example.com",
         role: "employee",
         createdAt: now,
         updatedAt: now,
@@ -30,7 +32,7 @@ export async function userSeeder() {
         id: randomUUID(),
         name: "Employee User 2",
         password: "password123",
-        email: "employee@example.com",
+        email: "employee2@example.com",
         role: "employee",
         createdAt: now,
         updatedAt: now,

@@ -1,5 +1,6 @@
 import { userSeeder } from "./users.seeder.js";
 import { poolSeeder } from "./pools.seeder.js";
+import { poolAccessSeeder } from "./pool-accesses.seeder.js";
 import { seedReportSeeder } from "./seed-reports.seeder.js";
 import { feedReportSeeder } from "./feed-reports.seeder.js";
 import { harvestReportSeeder } from "./harvest-reports.seeder.js";
@@ -11,6 +12,8 @@ async function runSeeders() {
     console.log("✅ Users seeder");
     const poolRows = await poolSeeder(userRows);
     console.log("✅ Pool seeder");
+    const poolAccessRows = await poolAccessSeeder(userRows, poolRows);
+    console.log("✅ Pool Access seeder");
 
     await seedReportSeeder(userRows, poolRows);
     console.log("✅ Seed Report seeder");
