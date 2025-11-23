@@ -1,12 +1,8 @@
-import { z } from "zod";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { users } from "../database/schema/index.js";
-
-const loginSchema = z.object({
-  username: z.string().min(2).max(100),
-  password: z.string().min(6).max(100),
-});
+import { loginSchema } from "../validations/auth.validation.js";
+import { errorResponse, successResponse } from "../helper/response.js";
 
 export const loginController = async (request, reply) => {
   const db = request.server.db;
@@ -15,34 +11,61 @@ export const loginController = async (request, reply) => {
   if (!validation.success) {
     return reply
       .status(400)
-      .send({ error: "Invalid input", details: validation.error.format() });
+      .send({ error: "Invalid input", details: validation.error.issues });
   }
 
-  const { username, password } = validation.data;
+  const { email, password } = validation.data;
 
   try {
-    const user = await db.select().from(users);
-    if (!user) {
-      return reply.status(401).send({ error: "Invalid username or password" });
+    const now = new Date()
+      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
+      .replace(" ", "T");
+
+    const user = await db.select().from(users).where(eq(users.email, email));
+
+    if (!user || user.length === 0) {
+      return errorResponse(reply, "Invalid username or password", 401);
     }
 
-    // adapt field name if your DB stores the hashed password under a different key
-    const passwordHash = user.passwordHash || user.password;
-    const matches = await bcrypt.compare(password, passwordHash);
+    const existingPassword = user[0].password;
+    const matches = await bcrypt.compare(password, existingPassword);
+
     if (!matches) {
-      return reply.status(401).send({ error: "Invalid username or password" });
+      return errorResponse(reply, "Invalid username or password", 401);
     }
 
-    // Optionally issue a JWT if you have fastify-jwt registered:
-    // const token = await reply.jwtSign({ sub: user.id, username: user.username });
-    // return reply.send({ message: "Login successful", token });
+    const payload = { id: user[0].id, email: user[0].email };
+    const token = request.server.jwt.sign(payload, { expiresIn: "1h" });
+    const expired_at = now + 3600 * 1000;
+    const type = "Bearer";
 
-    return reply.send({ message: "Login successful" });
+    return successResponse(
+      reply,
+      "Login successful",
+      { expired_at, token, type },
+      200
+    );
   } catch (err) {
-    // log error on server side and return generic message
     request.log?.error(err);
     return reply.status(500).send({ error: "Internal server error" });
   }
 };
 
-export const registerController = async (request, reply) => {};
+export const logoutController = async (request, reply) => {
+  try {
+    const auth = request.headers.authorization || request.headers.Authorization;
+    if (!auth || !auth.startsWith("Bearer ")) {
+      return successResponse(reply, "Logout successful", {}, 200);
+    }
+
+    const token = auth.split(" ")[1];
+
+    await request.server.jwt.verify(token);
+    request.server.revokedTokens.add(token);
+
+    return successResponse(reply, "Logout successful", {}, 200);
+  } catch (err) {
+    request.log?.error(err);
+    return reply.status(500).send({ error: "Internal server error" });
+  }
+};

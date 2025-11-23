@@ -1,16 +1,7 @@
-import z from "zod";
 import { users } from "../database/schema/users.schema.js";
+import { changePasswordSchema } from "../validations/user.validation.js";
 import { errorResponse, successResponse } from "../helper/response.js";
 import bcrypt from "bcrypt";
-
-const changePasswordSchema = z.object({
-  oldPassword: z
-    .string()
-    .min(6, { message: "Old password must be at least 6 characters long" }),
-  newPassword: z
-    .string()
-    .min(6, { message: "New password must be at least 6 characters long" }),
-});
 
 export const changePassword = async (request, reply) => {
   const db = request.server?.db;

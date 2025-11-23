@@ -1,7 +1,11 @@
-// import { changePassword } from "../controllers/user.controller";
+import { changePassword } from "../controllers/user.controller.js";
 
-// export default function UserRoutes(app) {
-//   app.post("/api/user/change-password", async (request, reply) => {
-//     return changePassword(request, reply);
-//   });
-// }
+export default function UserRoutes(app) {
+  app.post(
+    "/change-password",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      return changePassword(request, reply);
+    }
+  );
+}
