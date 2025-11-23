@@ -114,23 +114,57 @@ export const createHarvestReport = async (request, reply) => {
 export const updateHarvestReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
+  const body = request.body;
 
-  const validation = harvestReportSchema.safeParse(request.body);
+  if (!body || !body.imageUrl) {
+    return errorResponse(reply, "imageUrl file is required", null, 400);
+  }
 
-  if (!validation.success) {
-    const issues = validation.error.issues;
-    const errorMessages = issues.map((issue) => issue.message);
+  const fileValidation = fileSchema.safeParse({
+    fieldname: body.imageUrl.fieldname,
+    mimetype: body.imageUrl.mimetype,
+    filename: body.imageUrl.filename,
+  });
+
+  const validation = harvestReportSchema.safeParse({
+    reportDate: body.reportDate.value,
+    quantity: Number(body.quantity.value),
+  });
+
+  if (!fileValidation.success || !validation.success) {
+    const fileIssues = fileValidation.success
+      ? []
+      : fileValidation.error.issues;
+    const validationIssues = validation.success ? [] : validation.error.issues;
+    const errorMessages = [...fileIssues, ...validationIssues].map(
+      (issue) => issue.message
+    );
     return errorResponse(reply, errorMessages, null, 400);
   }
 
   try {
+    const { filePath, publicPath } = await generateUploadPath(
+      body.imageUrl.filename,
+      "harvest-reports",
+      body.imageUrl.mimetype
+    );
+
+    const buffer = await body.imageUrl.toBuffer();
+    fs.writeFileSync(filePath, buffer);
+
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
+    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+
+    if (!userId) {
+      return errorResponse(reply, "User ID is required", null, 400);
+    }
+
     const payload = {
       ...validation.data,
-      imageUrl: "https://example.com/harvest.jpg",
+      imageUrl: publicPath,
       updatedAt: now,
     };
 
@@ -147,7 +181,9 @@ export const updateHarvestReport = async (request, reply) => {
 
     return successResponse(reply, "data updated", data, 200);
   } catch (error) {
-    return errorResponse(reply, error, null, 500);
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, error, null, 500);
   }
 };
 

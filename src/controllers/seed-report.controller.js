@@ -114,7 +114,9 @@ export const updateSeedReport = async (request, reply) => {
 
     return successResponse(reply, "data updated", data, 200);
   } catch (error) {
-    return errorResponse(reply, error, null, 500);
+    error.cause.code === "22P02"
+      ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 
