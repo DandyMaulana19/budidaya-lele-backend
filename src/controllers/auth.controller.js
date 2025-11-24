@@ -17,10 +17,6 @@ export const loginController = async (request, reply) => {
   const { email, password } = validation.data;
 
   try {
-    const now = new Date()
-      .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
-      .replace(" ", "T");
-
     const user = await db.select().from(users).where(eq(users.email, email));
 
     if (!user || user.length === 0) {
@@ -34,15 +30,30 @@ export const loginController = async (request, reply) => {
       return errorResponse(reply, "Invalid username or password", 401);
     }
 
-    const payload = { id: user[0].id, email: user[0].email };
-    const token = request.server.jwt.sign(payload, { expiresIn: "1h" });
-    const expired_at = now + 3600 * 1000;
     const type = "Bearer";
+    const expiresInSeconds = 60 * 60;
+
+    const payload = { id: user[0].id, email: user[0].email };
+    const token = request.server.jwt.sign(payload, {
+      expiresIn: `${expiresInSeconds}s`,
+    });
+
+    const expired_at = new Date(
+      Date.now() + expiresInSeconds * 1000
+    ).toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" });
+
+    reply.setCookie("token", token, {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: expiresInSeconds,
+    });
 
     return successResponse(
       reply,
       "Login successful",
-      { expired_at, token, type },
+      { expired_at, type },
       200
     );
   } catch (err) {
@@ -53,17 +64,30 @@ export const loginController = async (request, reply) => {
 
 export const logoutController = async (request, reply) => {
   try {
-    const auth = request.headers.authorization || request.headers.Authorization;
-    if (!auth || !auth.startsWith("Bearer ")) {
+    const headerAuth =
+      request.headers.authorization || request.headers.Authorization;
+    let token = undefined;
+
+    if (request.cookies && request.cookies.token) {
+      token = request.cookies.token;
+    } else if (headerAuth && headerAuth.startsWith("Bearer ")) {
+      token = headerAuth.split(" ")[1];
+    }
+
+    reply.clearCookie("token", { path: "/" });
+
+    if (!token) {
       return successResponse(reply, "Logout successful", {}, 200);
     }
 
-    const token = auth.split(" ")[1];
+    try {
+      await request.server.jwt.verify(token);
+      request.server.revokedTokens.add(token);
+    } catch (err) {
+      request.log?.debug?.(err);
+    }
 
-    await request.server.jwt.verify(token);
-    request.server.revokedTokens.add(token);
-
-    return successResponse(reply, "Logout successful", {}, 200);
+    return successResponse(reply, "Logout successful");
   } catch (err) {
     request.log?.error(err);
     return reply.status(500).send({ error: "Internal server error" });
