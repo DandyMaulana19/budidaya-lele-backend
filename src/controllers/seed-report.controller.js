@@ -1,8 +1,13 @@
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
-import { successResponse, errorResponse } from "../helper/response.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 import { seedReports } from "../database/schema/seed-reports.schema.js";
 import { seedReportSchema } from "../validations/seed-report.validation.js";
+import {
+  activityEnum,
+  activityLogs,
+} from "../database/schema/log-activiity.schema.js";
+import { pools } from "../database/schema/pools.schema.js";
 
 export const getSeedReports = async (request, reply) => {
   const db = request.server?.db;
@@ -75,18 +80,35 @@ export const createSeedReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
+    console.log(request.body.poolId.value);
+
     const payload = {
       id: randomUUID(),
-      poolId: "4e276316-32c3-455e-b7b3-df61c429cfdc",
-      userId: "1054cf7b-ffb9-42e3-ad28-9917b8a00e30",
-      // userId: request.user.user_id
-      // poolId: request.body.poolId,
+      poolId: request.body.poolId || "4e276316-32c3-455e-b7b3-df61c429cfdc",
+      userId: request.user?.id,
       ...validation.data,
       createdAt: now,
       updatedAt: now,
     };
 
     const data = await db.insert(seedReports).values(payload).returning();
+
+    const [{ poolName }] = await db
+      .select({ poolName: pools.name })
+      .from(pools)
+      .where(eq(pools.id, payload.poolId));
+
+    const activity = {
+      id: randomUUID(),
+      reportId: payload.id,
+      userId: payload.userId,
+      poolName,
+      activity: activityEnum.enumValues[2],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
   } catch (err) {

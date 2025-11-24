@@ -1,11 +1,16 @@
 import fs from "fs";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
-import { generateUploadPath } from "../helper/utils.js";
-import { errorResponse, successResponse } from "../helper/response.js";
+import { generateUploadPath } from "../utils/helper.js";
+import { errorResponse, successResponse } from "../utils/response.js";
+import { pools } from "../database/schema/pools.schema.js";
 import { feedReports } from "../database/schema/feed-reports.schema.js";
 import { feedReportSchema } from "../validations/feed-report.validation.js";
 import { fileSchema } from "../validations/file.validation.js";
+import {
+  activityLogs,
+  activityEnum,
+} from "../database/schema/log-activiity.schema.js";
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;
@@ -94,25 +99,36 @@ export const createFeedReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
-    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
-
-    if (!userId) {
-      return errorResponse(reply, "User ID is required", null, 400);
-    }
-
     const payload = {
       id: randomUUID(),
-      poolId: body.poolId?.value || "a72ffcdb-1f41-44b8-9801-9446ea9023a6",
-      userId: userId,
+      poolId: body.poolId?.value || "5de94eb5-39ff-49a5-8000-f2f4f7a6618f",
+      userId: request.user.id,
       reportDate: validation.data.reportDate,
       imageUrl: publicPath,
       createdAt: now,
       updatedAt: now,
     };
 
-    const result = await db.insert(feedReports).values(payload).returning();
+    const data = await db.insert(feedReports).values(payload).returning();
 
-    return successResponse(reply, "data created", result, 201);
+    const [{ poolName }] = await db
+      .select({ poolName: pools.name })
+      .from(pools)
+      .where(eq(pools.id, payload.poolId));
+
+    const activity = {
+      id: randomUUID(),
+      reportId: payload.id,
+      userId: payload.userId,
+      poolName,
+      activity: activityEnum.enumValues[0],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(activityLogs).values(activity);
+
+    return successResponse(reply, "data created", data, 201);
   } catch (err) {
     request.log?.error(err);
     return errorResponse(reply, "internal server error", null, 500);

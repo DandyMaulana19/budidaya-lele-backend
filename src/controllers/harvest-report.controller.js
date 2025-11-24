@@ -1,11 +1,16 @@
 import fs from "fs";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
-import { generateUploadPath } from "../helper/utils.js";
-import { errorResponse, successResponse } from "../helper/response.js";
+import { generateUploadPath } from "../utils/helper.js";
+import { errorResponse, successResponse } from "../utils/response.js";
 import { harvestReports } from "../database/schema/harvest-reports.schema.js";
 import { harvestReportSchema } from "../validations/harvest-report.validation.js";
 import { fileSchema } from "../validations/file.validation.js";
+import {
+  activityEnum,
+  activityLogs,
+} from "../database/schema/log-activiity.schema.js";
+import { pools } from "../database/schema/pools.schema.js";
 
 export const getHarvestReports = async (request, reply) => {
   const db = request.server?.db;
@@ -98,18 +103,10 @@ export const createHarvestReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
-    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
-
-    if (!userId) {
-      return errorResponse(reply, "User ID is required", null, 400);
-    }
-
     const payload = {
       id: randomUUID(),
-      poolId: "a72ffcdb-1f41-44b8-9801-9446ea9023a6",
-      userId: userId,
-      // userId: request.user.user_id
-      // poolId: request.body.poolId,
+      userId: request.user.id,
+      poolId: body.poolId.value,
       ...validation.data,
       imageUrl: publicPath,
       createdAt: now,
@@ -117,6 +114,23 @@ export const createHarvestReport = async (request, reply) => {
     };
 
     const data = await db.insert(harvestReports).values(payload).returning();
+
+    const [{ poolName }] = await db
+      .select({ poolName: pools.name })
+      .from(pools)
+      .where(eq(pools.id, payload.poolId));
+
+    const activity = {
+      id: randomUUID(),
+      reportId: payload.id,
+      userId: payload.userId,
+      poolName: poolName,
+      activity: activityEnum.enumValues[1],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
   } catch (err) {
