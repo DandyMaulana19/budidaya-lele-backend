@@ -18,6 +18,20 @@ export const getMortalityReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
+export const getMortalityReportsByUser = async (request, reply) => {
+  const db = request.server?.db;
+  const id = request.user.id;
+
+  const data = await db
+    .select()
+    .from(mortalityReports)
+    .where(
+      and(eq(mortalityReports.userId, id), isNull(mortalityReports.deletedAt))
+    );
+
+  return successResponse(reply, "data fetched", data, 200);
+};
+
 export const getMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;

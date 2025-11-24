@@ -1,4 +1,11 @@
-import { getHarvestReports, getHarvestReport, createHarvestReport, updateHarvestReport, deleteHarvestReport } from "../controllers/harvest-report.controller.js";
+import {
+  getHarvestReports,
+  getHarvestReport,
+  createHarvestReport,
+  updateHarvestReport,
+  deleteHarvestReport,
+  getHarvestReportsByUser,
+} from "../controllers/harvest-report.controller.js";
 
 export default function harvestReportRoutes(app) {
   app.get(
@@ -6,6 +13,14 @@ export default function harvestReportRoutes(app) {
     { preHandler: app.authenticate },
     async (request, reply) => {
       return getHarvestReports(request, reply);
+    }
+  );
+
+  app.get(
+    "/harvest-reports/user",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      return getHarvestReportsByUser(request, reply);
     }
   );
 

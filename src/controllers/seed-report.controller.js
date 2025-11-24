@@ -20,6 +20,23 @@ export const getSeedReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
+export const getSeedReportsByUser = async (request, reply) => {
+  const db = request.server?.db;
+  const id = request.user.id;
+
+  const data = await db
+    .select()
+    .from(seedReports)
+    .where(and(eq(seedReports.userId, id), isNull(seedReports.deletedAt)));
+
+  if (!data) {
+    return successResponse(reply, "internal server error", data, 500);
+  }
+  console.log(data);
+
+  return successResponse(reply, "data fetched", data, 200);
+};
+
 export const getSeedReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;

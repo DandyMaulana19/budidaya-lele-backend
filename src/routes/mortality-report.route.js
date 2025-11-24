@@ -4,6 +4,7 @@ import {
   createMortalityReport,
   updateMortalityReport,
   deleteMortalityReport,
+  getMortalityReportsByUser,
 } from "../controllers/mortality-report.controller.js";
 
 export default function moratlityReportRoutes(app) {
@@ -12,6 +13,14 @@ export default function moratlityReportRoutes(app) {
     { preHandler: app.authenticate },
     async (request, reply) => {
       return getMortalityReports(request, reply);
+    }
+  );
+
+  app.get(
+    "/mortality-reports/user",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      return getMortalityReportsByUser(request, reply);
     }
   );
 

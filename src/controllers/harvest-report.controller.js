@@ -18,6 +18,20 @@ export const getHarvestReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
+export const getHarvestReportsByUser = async (request, reply) => {
+  const db = request.server?.db;
+  const id = request.user.id;
+
+  const data = await db
+    .select()
+    .from(harvestReports)
+    .where(
+      and(eq(harvestReports.userId, id), isNull(harvestReports.deletedAt))
+    );
+
+  return successResponse(reply, "data fetched", data, 200);
+};
+
 export const getHarvestReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;

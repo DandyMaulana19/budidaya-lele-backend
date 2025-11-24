@@ -4,6 +4,7 @@ import {
   createSeedReport,
   updateSeedReport,
   deleteSeedReport,
+  getSeedReportsByUser,
 } from "../controllers/seed-report.controller.js";
 
 export default function seedReportRoutes(app) {
@@ -12,6 +13,14 @@ export default function seedReportRoutes(app) {
     { preHandler: app.authenticate },
     async (request, reply) => {
       return getSeedReports(request, reply);
+    }
+  );
+
+  app.get(
+    "/seed-reports/user",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      return getSeedReportsByUser(request, reply);
     }
   );
 

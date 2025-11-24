@@ -18,6 +18,18 @@ export const getFeedReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
+export const getFeedReportsByUser = async (request, reply) => {
+  const db = request.server?.db;
+  const id = request.user.id;
+
+  const data = await db
+    .select()
+    .from(feedReports)
+    .where(and(eq(feedReports.userId, id), isNull(feedReports.deletedAt)));
+
+  return successResponse(reply, "data fetched", data, 200);
+};
+
 export const getFeedReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
