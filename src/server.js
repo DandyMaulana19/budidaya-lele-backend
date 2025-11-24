@@ -11,7 +11,8 @@ import feedReportRoutes from "./routes/feed-report.route.js";
 import userRoutes from "./routes/user.route.js";
 import moratlityReportRoutes from "./routes/mortality-report.route.js";
 import harvestReportRoutes from "./routes/harvest-report.route.js";
-import { errorResponse } from "./helper/response.js";
+import { errorResponse } from "./utils/response.js";
+import appRoutes from "./routes/app.route.js";
 
 const app = fastify({ logger: true });
 
@@ -63,6 +64,7 @@ app.decorate("authenticate", async (request, reply) => {
 app.register(formbody);
 app.register(multipart, { attachFieldsToBody: true });
 app.register(authRoutes, { prefix: "/api" });
+app.register(appRoutes, { prefix: "/api" });
 // app.register(userRoutes, { prefix: "/api" });
 app.register(seedReportRoutes, { prefix: "/api" });
 app.register(feedReportRoutes, { prefix: "/api" });

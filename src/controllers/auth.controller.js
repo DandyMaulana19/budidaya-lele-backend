@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { users } from "../database/schema/index.js";
 import { loginSchema } from "../validations/auth.validation.js";
-import { errorResponse, successResponse } from "../helper/response.js";
+import { errorResponse, successResponse } from "../utils/response.js";
 
 export const loginController = async (request, reply) => {
   const db = request.server.db;

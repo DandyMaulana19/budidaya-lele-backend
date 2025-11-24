@@ -1,6 +1,6 @@
 import { users } from "../database/schema/users.schema.js";
 import { changePasswordSchema } from "../validations/user.validation.js";
-import { errorResponse, successResponse } from "../helper/response.js";
+import { errorResponse, successResponse } from "../utils/response.js";
 import bcrypt from "bcrypt";
 
 export const changePassword = async (request, reply) => {
