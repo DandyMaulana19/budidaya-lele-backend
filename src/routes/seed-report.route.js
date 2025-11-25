@@ -10,7 +10,7 @@ import {
 export default function seedReportRoutes(app) {
   app.get(
     "/seed-reports",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getSeedReports(request, reply);
     }
@@ -18,7 +18,7 @@ export default function seedReportRoutes(app) {
 
   app.get(
     "/seed-reports/user",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getSeedReportsByUser(request, reply);
     }
@@ -26,7 +26,7 @@ export default function seedReportRoutes(app) {
 
   app.get(
     "/seed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getSeedReport(request, reply);
     }
@@ -34,7 +34,7 @@ export default function seedReportRoutes(app) {
 
   app.post(
     "/seed-report",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return createSeedReport(request, reply);
     }
@@ -42,7 +42,7 @@ export default function seedReportRoutes(app) {
 
   app.put(
     "/seed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return updateSeedReport(request, reply);
     }
@@ -50,7 +50,7 @@ export default function seedReportRoutes(app) {
 
   app.delete(
     "/seed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return deleteSeedReport(request, reply);
     }

@@ -10,7 +10,7 @@ import {
 export default function harvestReportRoutes(app) {
   app.get(
     "/harvest-reports",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getHarvestReports(request, reply);
     }
@@ -18,7 +18,7 @@ export default function harvestReportRoutes(app) {
 
   app.get(
     "/harvest-reports/user",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getHarvestReportsByUser(request, reply);
     }
@@ -26,7 +26,7 @@ export default function harvestReportRoutes(app) {
 
   app.get(
     "/harvest-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getHarvestReport(request, reply);
     }
@@ -34,7 +34,7 @@ export default function harvestReportRoutes(app) {
 
   app.post(
     "/harvest-report",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return createHarvestReport(request, reply);
     }
@@ -42,7 +42,7 @@ export default function harvestReportRoutes(app) {
 
   app.put(
     "/harvest-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return updateHarvestReport(request, reply);
     }
@@ -50,7 +50,7 @@ export default function harvestReportRoutes(app) {
 
   app.delete(
     "/harvest-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return deleteHarvestReport(request, reply);
     }

@@ -10,7 +10,7 @@ import {
 export default function feedReportRoutes(app) {
   app.get(
     "/feed-reports",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReports(request, reply);
     }
@@ -18,7 +18,7 @@ export default function feedReportRoutes(app) {
 
   app.get(
     "/feed-reports/user",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReportsByUser(request, reply);
     }
@@ -26,23 +26,19 @@ export default function feedReportRoutes(app) {
 
   app.get(
     "/feed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReport(request, reply);
     }
   );
 
-  app.post(
-    "/feed-report",
-    { preHandler: app.authenticate },
-    async (request, reply) => {
-      return createFeedReport(request, reply);
-    }
-  );
+  app.post("/feed-report", async (request, reply) => {
+    return createFeedReport(request, reply);
+  });
 
   app.put(
     "/feed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return updateFeedReport(request, reply);
     }
@@ -50,7 +46,7 @@ export default function feedReportRoutes(app) {
 
   app.delete(
     "/feed-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return deleteFeedReport(request, reply);
     }

@@ -31,63 +31,27 @@ export const loginController = async (request, reply) => {
     }
 
     const type = "Bearer";
-    const expiresInSeconds = 60 * 60;
 
-    const payload = { id: user[0].id, email: user[0].email };
+    const payload = {
+      id: user[0].id,
+      name: user[0].name,
+      email: user[0].email,
+      role: user[0].role,
+    };
     const token = request.server.jwt.sign(payload, {
-      expiresIn: `${expiresInSeconds}s`,
+      expiresIn: "1h",
     });
 
-    const expired_at = new Date(
-      Date.now() + expiresInSeconds * 1000
-    ).toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" });
-
-    reply.setCookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: expiresInSeconds,
+    const expires_at = new Date(Date.now() * 1000).toLocaleString("sv-SE", {
+      timeZone: "Asia/Jakarta",
     });
 
     return successResponse(
       reply,
       "Login successful",
-      { expired_at, type },
+      { expires_at, token, type },
       200
     );
-  } catch (err) {
-    request.log?.error(err);
-    return reply.status(500).send({ error: "Internal server error" });
-  }
-};
-
-export const logoutController = async (request, reply) => {
-  try {
-    const headerAuth =
-      request.headers.authorization || request.headers.Authorization;
-    let token = undefined;
-
-    if (request.cookies && request.cookies.token) {
-      token = request.cookies.token;
-    } else if (headerAuth && headerAuth.startsWith("Bearer ")) {
-      token = headerAuth.split(" ")[1];
-    }
-
-    reply.clearCookie("token", { path: "/" });
-
-    if (!token) {
-      return successResponse(reply, "Logout successful", {}, 200);
-    }
-
-    try {
-      await request.server.jwt.verify(token);
-      request.server.revokedTokens.add(token);
-    } catch (err) {
-      request.log?.debug?.(err);
-    }
-
-    return successResponse(reply, "Logout successful");
   } catch (err) {
     request.log?.error(err);
     return reply.status(500).send({ error: "Internal server error" });

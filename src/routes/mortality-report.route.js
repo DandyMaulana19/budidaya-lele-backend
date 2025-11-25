@@ -10,7 +10,7 @@ import {
 export default function moratlityReportRoutes(app) {
   app.get(
     "/mortality-reports",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getMortalityReports(request, reply);
     }
@@ -18,7 +18,7 @@ export default function moratlityReportRoutes(app) {
 
   app.get(
     "/mortality-reports/user",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getMortalityReportsByUser(request, reply);
     }
@@ -26,7 +26,7 @@ export default function moratlityReportRoutes(app) {
 
   app.get(
     "/mortality-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getMortalityReport(request, reply);
     }
@@ -34,7 +34,7 @@ export default function moratlityReportRoutes(app) {
 
   app.post(
     "/mortality-report",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return createMortalityReport(request, reply);
     }
@@ -42,7 +42,7 @@ export default function moratlityReportRoutes(app) {
 
   app.put(
     "/mortality-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return updateMortalityReport(request, reply);
     }
@@ -50,7 +50,7 @@ export default function moratlityReportRoutes(app) {
 
   app.delete(
     "/mortality-report/:id",
-    { preHandler: app.authenticate },
+    { preHandler: [app.authenticate] },
     async (request, reply) => {
       return deleteMortalityReport(request, reply);
     }
