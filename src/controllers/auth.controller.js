@@ -42,7 +42,7 @@ export const loginController = async (request, reply) => {
       expiresIn: "1h",
     });
 
-    const expires_at = new Date(Date.now() * 1000).toLocaleString("sv-SE", {
+    const expires_at = new Date(Date.now() + 3600000).toLocaleString("sv-SE", {
       timeZone: "Asia/Jakarta",
     });
 
