@@ -12,6 +12,7 @@ import moratlityReportRoutes from "./routes/mortality-report.route.js";
 import harvestReportRoutes from "./routes/harvest-report.route.js";
 import appRoutes from "./routes/app.route.js";
 import { errorResponse } from "./utils/response.js";
+import poolRoutes from "./routes/pool.route.js";
 
 const app = fastify({ logger: true });
 
@@ -38,6 +39,7 @@ app.register(seedReportRoutes, { prefix: "/api" });
 app.register(feedReportRoutes, { prefix: "/api" });
 app.register(moratlityReportRoutes, { prefix: "/api" });
 app.register(harvestReportRoutes, { prefix: "/api" });
+app.register(poolRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {
