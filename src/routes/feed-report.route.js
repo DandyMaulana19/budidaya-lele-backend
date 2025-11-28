@@ -32,9 +32,13 @@ export default function feedReportRoutes(app) {
     }
   );
 
-  app.post("/feed-report", async (request, reply) => {
-    return createFeedReport(request, reply);
-  });
+  app.post(
+    "/feed-report",
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      return createFeedReport(request, reply);
+    }
+  );
 
   app.put(
     "/feed-report/:id",

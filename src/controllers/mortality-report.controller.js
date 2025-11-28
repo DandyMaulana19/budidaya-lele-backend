@@ -110,7 +110,7 @@ export const createMortalityReport = async (request, reply) => {
       userId: request.user.id,
       poolId: body.poolId.value,
       ...validation.data,
-      imageUrl: publicPath,
+      imageUrl: filePath,
       createdAt: now,
       updatedAt: now,
     };
@@ -193,7 +193,7 @@ export const updateMortalityReport = async (request, reply) => {
     }
     const payload = {
       ...validation.data,
-      imageUrl: publicPath,
+      imageUrl: filePath,
       updatedAt: now,
     };
 
@@ -202,8 +202,6 @@ export const updateMortalityReport = async (request, reply) => {
       .set(payload)
       .where(eq(mortalityReports.id, id))
       .returning();
-
-    console.log(data);
 
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);

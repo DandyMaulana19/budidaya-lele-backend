@@ -104,7 +104,7 @@ export const createFeedReport = async (request, reply) => {
       poolId: body.poolId?.value || "5de94eb5-39ff-49a5-8000-f2f4f7a6618f",
       userId: request.user.id,
       reportDate: validation.data.reportDate,
-      imageUrl: publicPath,
+      imageUrl: filePath,
       createdAt: now,
       updatedAt: now,
     };
@@ -186,7 +186,7 @@ export const updateFeedReport = async (request, reply) => {
     }
     const payload = {
       reportDate: validation.data.reportDate,
-      imageUrl: publicPath,
+      imageUrl: filePath,
       updatedAt: now,
     };
 
@@ -195,8 +195,6 @@ export const updateFeedReport = async (request, reply) => {
       .set(payload)
       .where(eq(feedReports.id, id))
       .returning();
-
-    console.log(data);
 
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);

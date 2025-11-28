@@ -20,7 +20,6 @@ export const getSeedReports = async (request, reply) => {
   if (!data) {
     return successResponse(reply, "internal server error", data, 500);
   }
-  console.log(data);
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -37,7 +36,6 @@ export const getSeedReportsByUser = async (request, reply) => {
   if (!data) {
     return successResponse(reply, "internal server error", data, 500);
   }
-  console.log(data);
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -79,8 +77,6 @@ export const createSeedReport = async (request, reply) => {
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
-
-    console.log(request.body.poolId.value);
 
     const payload = {
       id: randomUUID(),
@@ -145,8 +141,6 @@ export const updateSeedReport = async (request, reply) => {
       .set(payload)
       .where(eq(seedReports.id, id))
       .returning();
-
-    console.log(data);
 
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);
