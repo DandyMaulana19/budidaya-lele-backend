@@ -25,12 +25,19 @@ export const getFeedReports = async (request, reply) => {
 
 export const getFeedReportsByUser = async (request, reply) => {
   const db = request.server?.db;
-  const id = request.user.id;
+  const userId = request.user.id;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(feedReports)
-    .where(and(eq(feedReports.userId, id), isNull(feedReports.deletedAt)));
+    .where(
+      and(
+        eq(feedReports.userId, userId),
+        eq(feedReports.poolId, id),
+        isNull(feedReports.deletedAt)
+      )
+    );
 
   return successResponse(reply, "data fetched", data, 200);
 };

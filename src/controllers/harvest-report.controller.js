@@ -25,13 +25,18 @@ export const getHarvestReports = async (request, reply) => {
 
 export const getHarvestReportsByUser = async (request, reply) => {
   const db = request.server?.db;
-  const id = request.user.id;
+  const userId = request.user.id;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(harvestReports)
     .where(
-      and(eq(harvestReports.userId, id), isNull(harvestReports.deletedAt))
+      and(
+        eq(harvestReports.userId, userId),
+        eq(harvestReports.poolId, id),
+        isNull(harvestReports.deletedAt)
+      )
     );
 
   return successResponse(reply, "data fetched", data, 200);

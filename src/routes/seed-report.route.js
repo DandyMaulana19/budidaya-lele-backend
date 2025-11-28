@@ -17,7 +17,7 @@ export default function seedReportRoutes(app) {
   );
 
   app.get(
-    "/seed-reports/user",
+    "/seed-reports/user/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getSeedReportsByUser(request, reply);

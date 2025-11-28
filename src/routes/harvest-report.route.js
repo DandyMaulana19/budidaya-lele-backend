@@ -17,7 +17,7 @@ export default function harvestReportRoutes(app) {
   );
 
   app.get(
-    "/harvest-reports/user",
+    "/harvest-reports/user/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getHarvestReportsByUser(request, reply);

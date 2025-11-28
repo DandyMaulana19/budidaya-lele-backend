@@ -17,7 +17,7 @@ export default function feedReportRoutes(app) {
   );
 
   app.get(
-    "/feed-reports/user",
+    "/feed-reports/user/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReportsByUser(request, reply);

@@ -17,7 +17,7 @@ export default function moratlityReportRoutes(app) {
   );
 
   app.get(
-    "/mortality-reports/user",
+    "/mortality-reports/user/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getMortalityReportsByUser(request, reply);
