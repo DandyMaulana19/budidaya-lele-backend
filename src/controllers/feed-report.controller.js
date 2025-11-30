@@ -1,4 +1,5 @@
 import fs from "fs";
+import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
@@ -93,14 +94,23 @@ export const createFeedReport = async (request, reply) => {
   }
 
   try {
-    const { filePath, publicPath } = await generateUploadPath(
+    const { filePath } = await generateUploadPath(
       body.imageUrl.filename,
       "feed-reports",
       body.imageUrl.mimetype
     );
 
     const buffer = await body.imageUrl.toBuffer();
-    fs.writeFileSync(filePath, buffer);
+    let processedBuffer;
+
+    try {
+      processedBuffer = await sharp(buffer).webp({ quality: 50 }).toBuffer();
+    } catch (err) {
+      request.log?.error("Image processing failed, saving original:", err);
+      processedBuffer = buffer;
+    }
+
+    fs.writeFileSync(filePath, processedBuffer);
 
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
@@ -180,7 +190,16 @@ export const updateFeedReport = async (request, reply) => {
     );
 
     const buffer = await body.imageUrl.toBuffer();
-    fs.writeFileSync(filePath, buffer);
+    let processedBuffer;
+
+    try {
+      processedBuffer = await sharp(buffer).webp({ quality: 50 }).toBuffer();
+    } catch (err) {
+      request.log?.error("Image processing failed, saving original:", err);
+      processedBuffer = buffer;
+    }
+
+    fs.writeFileSync(filePath, processedBuffer);
 
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })

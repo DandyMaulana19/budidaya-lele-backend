@@ -11,6 +11,7 @@ import {
   activityLogs,
 } from "../database/schema/log-activiity.schema.js";
 import { pools } from "../database/schema/pools.schema.js";
+import sharp from "sharp";
 
 export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;
@@ -97,14 +98,23 @@ export const createMortalityReport = async (request, reply) => {
   }
 
   try {
-    const { filePath, publicPath } = await generateUploadPath(
+    const { filePath } = await generateUploadPath(
       body.imageUrl.filename,
       "mortality-reports",
       body.imageUrl.mimetype
     );
 
     const buffer = await body.imageUrl.toBuffer();
-    fs.writeFileSync(filePath, buffer);
+    let processedBuffer;
+
+    try {
+      processedBuffer = await sharp(buffer).webp({ quality: 50 }).toBuffer();
+    } catch (err) {
+      request.log?.error("Image processing failed, saving original:", err);
+      processedBuffer = buffer;
+    }
+
+    fs.writeFileSync(filePath, processedBuffer);
 
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })

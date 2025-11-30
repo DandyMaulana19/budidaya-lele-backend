@@ -31,7 +31,10 @@ app.decorate("authenticate", async (request, reply) => {
 });
 
 app.register(formbody);
-app.register(multipart, { attachFieldsToBody: true });
+app.register(multipart, {
+  attachFieldsToBody: true,
+  limits: { fileSize: 10000000 },
+});
 app.register(authRoutes, { prefix: "/api" });
 app.register(appRoutes, { prefix: "/api" });
 // app.register(userRoutes, { prefix: "/api" });
