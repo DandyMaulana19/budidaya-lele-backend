@@ -46,7 +46,10 @@ app.register(poolRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {
-    const address = await app.listen({ port: 3000 });
+    const address = await app.listen({
+      port: 3000,
+      host: process.env.HOST,
+    });
     app.log.info(`Server listening at ${address}`);
   } catch (err) {
     app.log.error(err);
