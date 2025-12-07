@@ -11,11 +11,12 @@ import { pools } from "../database/schema/pools.schema.js";
 
 export const getSeedReports = async (request, reply) => {
   const db = request.server?.db;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(seedReports)
-    .where(isNull(seedReports.deletedAt));
+    .where(eq(seedReports.poolId, id), isNull(seedReports.deletedAt));
 
   if (!data) {
     return successResponse(reply, "internal server error", data, 500);

@@ -9,7 +9,7 @@ import {
 
 export default function moratlityReportRoutes(app) {
   app.get(
-    "/mortality-reports",
+    "/mortality-reports/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getMortalityReports(request, reply);

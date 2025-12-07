@@ -9,7 +9,7 @@ import {
 
 export default function seedReportRoutes(app) {
   app.get(
-    "/seed-reports",
+    "/seed-reports/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getSeedReports(request, reply);

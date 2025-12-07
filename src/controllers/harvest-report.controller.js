@@ -15,11 +15,12 @@ import sharp from "sharp";
 
 export const getHarvestReports = async (request, reply) => {
   const db = request.server?.db;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(harvestReports)
-    .where(isNull(harvestReports.deletedAt));
+    .where(eq(harvestReports.poolId, id), isNull(harvestReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };

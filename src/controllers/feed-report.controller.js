@@ -15,11 +15,12 @@ import {
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(feedReports)
-    .where(isNull(feedReports.deletedAt));
+    .where(eq(feedReports.poolId, id), isNull(feedReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };

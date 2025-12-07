@@ -9,7 +9,7 @@ import {
 
 export default function harvestReportRoutes(app) {
   app.get(
-    "/harvest-reports",
+    "/harvest-reports/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getHarvestReports(request, reply);

@@ -9,7 +9,7 @@ import {
 
 export default function feedReportRoutes(app) {
   app.get(
-    "/feed-reports",
+    "/feed-reports/:id",
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReports(request, reply);

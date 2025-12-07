@@ -15,11 +15,12 @@ import sharp from "sharp";
 
 export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;
+  const { id } = request.params;
 
   const data = await db
     .select()
     .from(mortalityReports)
-    .where(isNull(mortalityReports.deletedAt));
+    .where(eq(mortalityReports.poolId, id), isNull(mortalityReports.deletedAt));
 
   return successResponse(reply, "data fetched", data, 200);
 };
