@@ -1,17 +1,16 @@
 import fs from "fs";
+import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
-import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
-import { mortalityReportSchema } from "../validations/mortality-report.validation.js";
-import { fileSchema } from "../validations/file.validation.js";
+import { mortalityReportSchema, fileSchema } from "../validations/index.js";
 import {
+  pools,
+  mortalityReports,
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activity.schema.js";
-import { pools } from "../database/schema/pools.schema.js";
-import sharp from "sharp";
+} from "../database/schema/index.js";
 
 export const getMortalityReports = async (request, reply) => {
   const db = request.server?.db;

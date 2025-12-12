@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { successResponse, errorResponse } from "../utils/response.js";
-import { seedReports } from "../database/schema/seed-reports.schema.js";
-import { seedReportSchema } from "../validations/seed-report.validation.js";
+import { seedReportSchema } from "../validations/index.js";
 import {
+  pools,
+  seedReports,
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activity.schema.js";
-import { pools } from "../database/schema/pools.schema.js";
+} from "../database/schema/index.js";
 
 export const getSeedReports = async (request, reply) => {
   const db = request.server?.db;

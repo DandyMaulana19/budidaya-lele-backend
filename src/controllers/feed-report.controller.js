@@ -4,14 +4,14 @@ import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
-import { pools } from "../database/schema/pools.schema.js";
-import { feedReports } from "../database/schema/feed-reports.schema.js";
 import { feedReportSchema } from "../validations/feed-report.validation.js";
 import { fileSchema } from "../validations/file.validation.js";
 import {
+  pools,
+  feedReports,
   activityLogs,
   activityEnum,
-} from "../database/schema/log-activity.schema.js";
+} from "../database/schema/index.js";
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;

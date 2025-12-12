@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { users } from "../database/schema/index.js";
-import { loginSchema } from "../validations/auth.validation.js";
+import { authSchema } from "../validations/index.js";
 import { errorResponse, successResponse } from "../utils/response.js";
 
 export const loginController = async (request, reply) => {
   const db = request.server.db;
-  const validation = loginSchema.safeParse(request.body);
+  const validation = authSchema.safeParse(request.body);
 
   if (!validation.success) {
     return reply

@@ -1,17 +1,16 @@
 import fs from "fs";
+import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
-import { harvestReports } from "../database/schema/harvest-reports.schema.js";
-import { harvestReportSchema } from "../validations/harvest-report.validation.js";
-import { fileSchema } from "../validations/file.validation.js";
+import { harvestReportSchema, fileSchema } from "../validations/index.js";
 import {
+  pools,
+  harvestReports,
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activity.schema.js";
-import { pools } from "../database/schema/pools.schema.js";
-import sharp from "sharp";
+} from "../database/schema/index.js";
 
 export const getHarvestReports = async (request, reply) => {
   const db = request.server?.db;
