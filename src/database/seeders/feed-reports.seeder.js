@@ -1,5 +1,5 @@
-import { db } from "../database/config/index.js";
-import { feedReports } from "../database/schema/feed-reports.schema.js";
+import { db } from "../config/index.js";
+import { feedReports } from "../schema/feed-reports.schema.js";
 import { randomUUID } from "crypto";
 
 export async function feedReportSeeder(userRows, poolRows) {
