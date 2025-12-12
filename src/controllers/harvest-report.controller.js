@@ -9,7 +9,7 @@ import { fileSchema } from "../validations/file.validation.js";
 import {
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activiity.schema.js";
+} from "../database/schema/log-activity.schema.js";
 import { pools } from "../database/schema/pools.schema.js";
 import sharp from "sharp";
 
