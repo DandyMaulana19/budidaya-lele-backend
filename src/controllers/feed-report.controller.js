@@ -11,7 +11,7 @@ import { fileSchema } from "../validations/file.validation.js";
 import {
   activityLogs,
   activityEnum,
-} from "../database/schema/log-activiity.schema.js";
+} from "../database/schema/log-activity.schema.js";
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;
