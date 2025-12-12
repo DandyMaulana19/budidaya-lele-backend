@@ -37,7 +37,7 @@ app.register(multipart, {
 });
 app.register(authRoutes, { prefix: "/api" });
 app.register(appRoutes, { prefix: "/api" });
-// app.register(userRoutes, { prefix: "/api" });
+app.register(userRoutes, { prefix: "/api" });
 app.register(seedReportRoutes, { prefix: "/api" });
 app.register(feedReportRoutes, { prefix: "/api" });
 app.register(moratlityReportRoutes, { prefix: "/api" });
