@@ -105,7 +105,7 @@ export const createSeedReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName,
       activity: activityEnum.enumValues[2],
       createdAt: now,

@@ -139,7 +139,7 @@ export const createHarvestReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName: poolName,
       activity: activityEnum.enumValues[1],
       createdAt: now,

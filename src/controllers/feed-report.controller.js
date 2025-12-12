@@ -137,7 +137,7 @@ export const createFeedReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName,
       activity: activityEnum.enumValues[0],
       createdAt: now,
