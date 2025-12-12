@@ -198,7 +198,7 @@ export const updateHarvestReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
-    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+    const userId = request.user?.id;
 
     if (!userId) {
       return errorResponse(reply, "User ID is required", null, 400);
