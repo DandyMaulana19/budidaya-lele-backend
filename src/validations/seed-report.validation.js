@@ -11,24 +11,18 @@ export const seedReportSchema = z.object({
     }),
 
   initialAmount: z
-    .number({
-      required_error: "Initial amount is required",
-    })
     .int("Initial amount must be an integer")
-    .min(0, "Initial amount must be at least 0"),
+    .min(1, "Initial amount must be at least 1"),
 
   averageWeight: z
-    .number({
-      required_error: "Average weight is required",
-    })
-    .min(1, "Average weight must be at least 1")
-    .positive("Average weight must be positive"),
+    .int("Average weight must be an integer")
+    .min(1, "Average weight must be at least 1"),
 
   currentAmount: z
-    .number({
-      required_error: "Current amount is required",
-    })
     .int("Current amount must be an integer")
-    .min(1, "Current amount must be at least 1")
-    .positive("Current amount must be positive"),
+    .min(1, "Current amount must be at least 1"),
+
+  poolId: z
+    .string({ required_error: "Pool Id is required" })
+    .nonempty("Pool Id is required"),
 });

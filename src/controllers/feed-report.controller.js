@@ -69,10 +69,6 @@ export const createFeedReport = async (request, reply) => {
   const db = request.server?.db;
   const body = request.body;
 
-  if (!body || !body.imageUrl) {
-    return errorResponse(reply, "imageUrl file is required", null, 400);
-  }
-
   const fileValidation = fileSchema.safeParse({
     fieldname: body.imageUrl.fieldname,
     mimetype: body.imageUrl.mimetype,
@@ -80,7 +76,8 @@ export const createFeedReport = async (request, reply) => {
   });
 
   const validation = feedReportSchema.safeParse({
-    reportDate: body.reportDate.value,
+    poolId: body.poolId.value ?? body.poolId,
+    reportDate: body.reportDate.value ?? body.reportDate,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -119,7 +116,7 @@ export const createFeedReport = async (request, reply) => {
 
     const payload = {
       id: randomUUID(),
-      poolId: body.poolId?.value || "5de94eb5-39ff-49a5-8000-f2f4f7a6618f",
+      poolId: body.poolId.value,
       userId: request.user.id,
       reportDate: validation.data.reportDate,
       imageUrl: filePath,
@@ -147,9 +144,10 @@ export const createFeedReport = async (request, reply) => {
     await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
-  } catch (err) {
-    request.log?.error(err);
-    return errorResponse(reply, "internal server error", null, 500);
+  } catch (error) {
+    error.cause.code === "22P02" || "23503"
+      ? errorResponse(reply, `Pool Id not found`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 

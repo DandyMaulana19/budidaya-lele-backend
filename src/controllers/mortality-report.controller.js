@@ -71,10 +71,6 @@ export const createMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const body = request.body;
 
-  if (!body || !body.imageUrl) {
-    return errorResponse(reply, "imageUrl file is required", null, 400);
-  }
-
   const fileValidation = fileSchema.safeParse({
     fieldname: body.imageUrl.fieldname,
     mimetype: body.imageUrl.mimetype,
@@ -82,8 +78,9 @@ export const createMortalityReport = async (request, reply) => {
   });
 
   const validation = mortalityReportSchema.safeParse({
-    reportDate: body.reportDate.value,
+    reportDate: body.reportDate.value ?? body.reportDate,
     quantity: Number(body.quantity.value),
+    poolId: body.poolId.value ?? body.poolId,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -151,9 +148,10 @@ export const createMortalityReport = async (request, reply) => {
     await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
-  } catch (err) {
-    request.log?.error(err);
-    return errorResponse(reply, err, null, 500);
+  } catch (error) {
+    error.cause.code === "22P02" || "23503"
+      ? errorResponse(reply, `Pool Id not found`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 
