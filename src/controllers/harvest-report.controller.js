@@ -1,17 +1,16 @@
 import fs from "fs";
+import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
-import { harvestReports } from "../database/schema/harvest-reports.schema.js";
-import { harvestReportSchema } from "../validations/harvest-report.validation.js";
-import { fileSchema } from "../validations/file.validation.js";
+import { harvestReportSchema, fileSchema } from "../validations/index.js";
 import {
+  pools,
+  harvestReports,
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activiity.schema.js";
-import { pools } from "../database/schema/pools.schema.js";
-import sharp from "sharp";
+} from "../database/schema/index.js";
 
 export const getHarvestReports = async (request, reply) => {
   const db = request.server?.db;
@@ -69,10 +68,6 @@ export const createHarvestReport = async (request, reply) => {
   const db = request.server?.db;
   const body = request.body;
 
-  if (!body || !body.imageUrl) {
-    return errorResponse(reply, "imageUrl file is required", null, 400);
-  }
-
   const fileValidation = fileSchema.safeParse({
     fieldname: body.imageUrl.fieldname,
     mimetype: body.imageUrl.mimetype,
@@ -80,8 +75,9 @@ export const createHarvestReport = async (request, reply) => {
   });
 
   const validation = harvestReportSchema.safeParse({
-    reportDate: body.reportDate.value,
+    reportDate: body.reportDate.value ?? body.reportDate,
     quantity: Number(body.quantity.value),
+    poolId: body.poolId.value ?? body.poolId,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -139,7 +135,7 @@ export const createHarvestReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName: poolName,
       activity: activityEnum.enumValues[1],
       createdAt: now,
@@ -149,9 +145,10 @@ export const createHarvestReport = async (request, reply) => {
     await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
-  } catch (err) {
-    request.log?.error(err);
-    return errorResponse(reply, err, null, 500);
+  } catch (error) {
+    error.cause.code === "22P02" || "23503"
+      ? errorResponse(reply, `Pool Id not found`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 
@@ -200,7 +197,7 @@ export const updateHarvestReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
-    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+    const userId = request.user?.id;
 
     if (!userId) {
       return errorResponse(reply, "User ID is required", null, 400);

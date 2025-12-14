@@ -5,7 +5,7 @@
     "dev": "nodemon src/server.js",
     "generate": "npx drizzle-kit generate --name=init",
     "migration": "npx drizzle-kit migrate",
-    "seed": "node src/seeders/index.js"
+    "seed": "node src/database/seeders/index.js"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",

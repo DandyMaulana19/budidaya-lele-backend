@@ -1,6 +1,6 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { successResponse, errorResponse } from "../utils/response.js";
-import { pools } from "../database/schema/pools.schema.js";
+import { pools } from "../database/schema/index.js";
 
 export const getPools = async (request, reply) => {
   const db = request.server?.db;

@@ -1,5 +1,5 @@
 import { successResponse } from "../utils/response.js";
-import { activityLogs } from "../database/schema/log-activiity.schema.js";
+import { activityLogs } from "../database/schema/index.js";
 
 export const getActivityLogs = async (request, reply) => {
   const db = request.server?.db;

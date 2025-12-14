@@ -4,14 +4,14 @@ import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
-import { pools } from "../database/schema/pools.schema.js";
-import { feedReports } from "../database/schema/feed-reports.schema.js";
 import { feedReportSchema } from "../validations/feed-report.validation.js";
 import { fileSchema } from "../validations/file.validation.js";
 import {
+  pools,
+  feedReports,
   activityLogs,
   activityEnum,
-} from "../database/schema/log-activiity.schema.js";
+} from "../database/schema/index.js";
 
 export const getFeedReports = async (request, reply) => {
   const db = request.server?.db;
@@ -69,10 +69,6 @@ export const createFeedReport = async (request, reply) => {
   const db = request.server?.db;
   const body = request.body;
 
-  if (!body || !body.imageUrl) {
-    return errorResponse(reply, "imageUrl file is required", null, 400);
-  }
-
   const fileValidation = fileSchema.safeParse({
     fieldname: body.imageUrl.fieldname,
     mimetype: body.imageUrl.mimetype,
@@ -80,7 +76,8 @@ export const createFeedReport = async (request, reply) => {
   });
 
   const validation = feedReportSchema.safeParse({
-    reportDate: body.reportDate.value,
+    poolId: body.poolId.value ?? body.poolId,
+    reportDate: body.reportDate.value ?? body.reportDate,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -119,7 +116,7 @@ export const createFeedReport = async (request, reply) => {
 
     const payload = {
       id: randomUUID(),
-      poolId: body.poolId?.value || "5de94eb5-39ff-49a5-8000-f2f4f7a6618f",
+      poolId: body.poolId.value,
       userId: request.user.id,
       reportDate: validation.data.reportDate,
       imageUrl: filePath,
@@ -137,7 +134,7 @@ export const createFeedReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName,
       activity: activityEnum.enumValues[0],
       createdAt: now,
@@ -147,9 +144,10 @@ export const createFeedReport = async (request, reply) => {
     await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
-  } catch (err) {
-    request.log?.error(err);
-    return errorResponse(reply, "internal server error", null, 500);
+  } catch (error) {
+    error.cause.code === "22P02" || "23503"
+      ? errorResponse(reply, `Pool Id not found`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 
@@ -206,7 +204,7 @@ export const updateFeedReport = async (request, reply) => {
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
       .replace(" ", "T");
 
-    const userId = request.user?.id || "cb1d213a-245b-4a2a-9e31-575d74e6fd9e";
+    const userId = request.user?.id;
 
     if (!userId) {
       return errorResponse(reply, "User ID is required", null, 400);

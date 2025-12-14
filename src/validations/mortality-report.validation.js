@@ -11,8 +11,10 @@ export const mortalityReportSchema = z.object({
     }),
 
   quantity: z
-    .number({
-      required_error: "Quantity is required",
-    })
+    .int("Quantity must be an integer")
     .min(1, "Quantity must be at least 1"),
+
+  poolId: z
+    .string({ required_error: "Pool Id is required" })
+    .nonempty("Pool Id is required"),
 });

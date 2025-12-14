@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { successResponse, errorResponse } from "../utils/response.js";
-import { seedReports } from "../database/schema/seed-reports.schema.js";
-import { seedReportSchema } from "../validations/seed-report.validation.js";
+import { seedReportSchema } from "../validations/index.js";
 import {
+  pools,
+  seedReports,
   activityEnum,
   activityLogs,
-} from "../database/schema/log-activiity.schema.js";
-import { pools } from "../database/schema/pools.schema.js";
+} from "../database/schema/index.js";
 
 export const getSeedReports = async (request, reply) => {
   const db = request.server?.db;
@@ -71,8 +71,15 @@ export const getSeedReport = async (request, reply) => {
 
 export const createSeedReport = async (request, reply) => {
   const db = request.server?.db;
+  const body = request.body;
 
-  const validation = seedReportSchema.safeParse(request.body);
+  const validation = seedReportSchema.safeParse({
+    reportDate: body.reportDate?.value,
+    initialAmount: Number(body.initialAmount?.value),
+    averageWeight: Number(body.averageWeight?.value),
+    currentAmount: Number(body.currentAmount?.value),
+    poolId: body.poolId?.value,
+  });
 
   if (!validation.success) {
     const issues = validation.error.issues;
@@ -88,7 +95,7 @@ export const createSeedReport = async (request, reply) => {
 
     const payload = {
       id: randomUUID(),
-      poolId: request.body.poolId || "4e276316-32c3-455e-b7b3-df61c429cfdc",
+      poolId: body.poolId,
       userId: request.user?.id,
       ...validation.data,
       createdAt: now,
@@ -105,7 +112,7 @@ export const createSeedReport = async (request, reply) => {
     const activity = {
       id: randomUUID(),
       reportId: payload.id,
-      userId: payload.userId,
+      user: request.user.name,
       poolName,
       activity: activityEnum.enumValues[2],
       createdAt: now,
@@ -115,9 +122,10 @@ export const createSeedReport = async (request, reply) => {
     await db.insert(activityLogs).values(activity);
 
     return successResponse(reply, "data created", data, 201);
-  } catch (err) {
-    request.log?.error(err);
-    return errorResponse(reply, "internal server error", null, 500);
+  } catch (error) {
+    error.cause.code === "22P02" || "23503"
+      ? errorResponse(reply, `Pool Id not found`, null, 403)
+      : errorResponse(reply, "internal server error", null, 500);
   }
 };
 
