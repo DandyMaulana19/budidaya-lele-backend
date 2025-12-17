@@ -1,5 +1,5 @@
-import { db } from "../database/config/index.js";
-import { mortalityReports } from "../database/schema/mortality-reports.schema.js";
+import { db } from "../config/index.js";
+import { mortalityReports } from "../schema/index.js";
 import { randomUUID } from "crypto";
 
 export async function mortalityReportSeeder(userRows, poolRows) {

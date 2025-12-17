@@ -1,5 +1,5 @@
-import { db } from "../database/config/index.js";
-import { seedReports } from "../database/schema/seed-reports.schema.js";
+import { db } from "../config/index.js";
+import { seedReports } from "../schema/index.js";
 import { randomUUID } from "crypto";
 
 export async function seedReportSeeder(userRows, poolRows) {
