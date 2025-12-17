@@ -95,7 +95,7 @@ export const createMortalityReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "mortality-reports",
       body.imageUrl.mimetype
@@ -122,7 +122,7 @@ export const createMortalityReport = async (request, reply) => {
       userId: request.user.id,
       poolId: body.poolId.value,
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       createdAt: now,
       updatedAt: now,
     };
@@ -186,7 +186,7 @@ export const updateMortalityReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "mortality-reports",
       body.imageUrl.mimetype
@@ -206,7 +206,7 @@ export const updateMortalityReport = async (request, reply) => {
     }
     const payload = {
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       updatedAt: now,
     };
 
