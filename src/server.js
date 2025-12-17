@@ -1,8 +1,11 @@
 import fastify from "fastify";
 import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
 import fastifyJwt from "@fastify/jwt";
 import formbody from "@fastify/formbody";
 import multipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
 import dbPlugin from "./database/config.js";
 import seedReportRoutes from "./routes/seed-report.route.js";
 import authRoutes from "./routes/auth.route.js";
@@ -15,6 +18,7 @@ import { errorResponse } from "./utils/response.js";
 import poolRoutes from "./routes/pool.route.js";
 
 const app = fastify({ logger: true });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.register(dbPlugin);
 
@@ -35,6 +39,10 @@ app.register(multipart, {
   attachFieldsToBody: true,
   limits: { fileSize: 10000000 },
 });
+app.register(fastifyStatic, {
+  root: path.join(__dirname, "uploads"),
+  prefix: "/src/uploads/",
+});
 app.register(authRoutes, { prefix: "/api" });
 app.register(appRoutes, { prefix: "/api" });
 app.register(userRoutes, { prefix: "/api" });
@@ -48,7 +56,7 @@ const start = async () => {
   try {
     const address = await app.listen({
       port: 3000,
-      host: process.env.HOST,
+      // host: process.env.HOST,
     });
     app.log.info(`Server listening at ${address}`);
   } catch (err) {

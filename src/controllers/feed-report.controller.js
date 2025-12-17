@@ -20,7 +20,7 @@ export const getFeedReports = async (request, reply) => {
   const data = await db
     .select()
     .from(feedReports)
-    .where(eq(feedReports.poolId, id), isNull(feedReports.deletedAt));
+    .where(and(eq(feedReports.poolId, id), isNull(feedReports.deletedAt)));
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -53,9 +53,6 @@ export const getFeedReport = async (request, reply) => {
       .select()
       .from(feedReports)
       .where(and(eq(feedReports.id, id), isNull(feedReports.deletedAt)));
-
-    if (data.length === 0 || error.cause.code === "22P02")
-      return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
     return successResponse(reply, "data fetched", data, 200);
   } catch (error) {
@@ -92,7 +89,7 @@ export const createFeedReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "feed-reports",
       body.imageUrl.mimetype
@@ -119,7 +116,7 @@ export const createFeedReport = async (request, reply) => {
       poolId: body.poolId.value,
       userId: request.user.id,
       reportDate: validation.data.reportDate,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       createdAt: now,
       updatedAt: now,
     };
@@ -182,7 +179,7 @@ export const updateFeedReport = async (request, reply) => {
   }
 
   try {
-    const { filePath, publicPath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "feed-reports",
       body.imageUrl.mimetype
@@ -211,7 +208,7 @@ export const updateFeedReport = async (request, reply) => {
     }
     const payload = {
       reportDate: validation.data.reportDate,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       updatedAt: now,
     };
 

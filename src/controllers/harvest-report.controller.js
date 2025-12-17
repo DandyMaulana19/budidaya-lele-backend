@@ -19,7 +19,9 @@ export const getHarvestReports = async (request, reply) => {
   const data = await db
     .select()
     .from(harvestReports)
-    .where(eq(harvestReports.poolId, id), isNull(harvestReports.deletedAt));
+    .where(
+      and(eq(harvestReports.poolId, id), isNull(harvestReports.deletedAt))
+    );
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -93,7 +95,7 @@ export const createHarvestReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "harvest-reports",
       body.imageUrl.mimetype
@@ -120,7 +122,7 @@ export const createHarvestReport = async (request, reply) => {
       userId: request.user.id,
       poolId: body.poolId.value,
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       createdAt: now,
       updatedAt: now,
     };
@@ -184,7 +186,7 @@ export const updateHarvestReport = async (request, reply) => {
   }
 
   try {
-    const { filePath, publicPath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "harvest-reports",
       body.imageUrl.mimetype
@@ -205,7 +207,7 @@ export const updateHarvestReport = async (request, reply) => {
 
     const payload = {
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       updatedAt: now,
     };
 
@@ -242,6 +244,8 @@ export const deleteHarvestReport = async (request, reply) => {
       .set({ deletedAt: now })
       .where(eq(harvestReports.id, id))
       .returning();
+
+    return successResponse(reply, "data deleted", null, 200);
   } catch (error) {
     error.cause.code === "22P02"
       ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)

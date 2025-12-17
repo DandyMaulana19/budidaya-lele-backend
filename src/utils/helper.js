@@ -35,6 +35,7 @@ export const generateUploadPath = async (
 
   const filename = `${randomUUID()}${ext}`;
   const filePath = path.join(dirPath, filename);
+  const urlPath = `/src/uploads/${subdir}/${filename}`;
 
-  return { filePath };
+  return { filePath, urlPath };
 };

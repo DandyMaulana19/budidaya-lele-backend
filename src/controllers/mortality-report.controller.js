@@ -19,7 +19,9 @@ export const getMortalityReports = async (request, reply) => {
   const data = await db
     .select()
     .from(mortalityReports)
-    .where(eq(mortalityReports.poolId, id), isNull(mortalityReports.deletedAt));
+    .where(
+      and(eq(mortalityReports.poolId, id), isNull(mortalityReports.deletedAt))
+    );
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -95,7 +97,7 @@ export const createMortalityReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "mortality-reports",
       body.imageUrl.mimetype
@@ -122,7 +124,7 @@ export const createMortalityReport = async (request, reply) => {
       userId: request.user.id,
       poolId: body.poolId.value,
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       createdAt: now,
       updatedAt: now,
     };
@@ -186,7 +188,7 @@ export const updateMortalityReport = async (request, reply) => {
   }
 
   try {
-    const { filePath } = await generateUploadPath(
+    const { filePath, urlPath } = await generateUploadPath(
       body.imageUrl.filename,
       "mortality-reports",
       body.imageUrl.mimetype
@@ -206,7 +208,7 @@ export const updateMortalityReport = async (request, reply) => {
     }
     const payload = {
       ...validation.data,
-      imageUrl: filePath,
+      imageUrl: urlPath,
       updatedAt: now,
     };
 
