@@ -74,11 +74,11 @@ export const createSeedReport = async (request, reply) => {
   const body = request.body;
 
   const validation = seedReportSchema.safeParse({
-    reportDate: body.reportDate?.value,
-    initialAmount: Number(body.initialAmount?.value),
-    averageWeight: Number(body.averageWeight?.value),
-    currentAmount: Number(body.currentAmount?.value),
-    poolId: body.poolId?.value,
+    reportDate: body.reportDate,
+    initialAmount: Number(body.initialAmount),
+    averageWeight: Number(body.averageWeight),
+    currentAmount: Number(body.currentAmount),
+    poolId: body.poolId,
   });
 
   if (!validation.success) {
