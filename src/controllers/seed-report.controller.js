@@ -16,7 +16,7 @@ export const getSeedReports = async (request, reply) => {
   const data = await db
     .select()
     .from(seedReports)
-    .where(eq(seedReports.poolId, id), isNull(seedReports.deletedAt));
+    .where(and(eq(seedReports.poolId, id), isNull(seedReports.deletedAt)));
 
   if (!data) {
     return successResponse(reply, "internal server error", data, 500);

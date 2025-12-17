@@ -20,7 +20,7 @@ export const getFeedReports = async (request, reply) => {
   const data = await db
     .select()
     .from(feedReports)
-    .where(eq(feedReports.poolId, id), isNull(feedReports.deletedAt));
+    .where(and(eq(feedReports.poolId, id), isNull(feedReports.deletedAt)));
 
   return successResponse(reply, "data fetched", data, 200);
 };

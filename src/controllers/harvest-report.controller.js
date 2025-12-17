@@ -19,7 +19,9 @@ export const getHarvestReports = async (request, reply) => {
   const data = await db
     .select()
     .from(harvestReports)
-    .where(eq(harvestReports.poolId, id), isNull(harvestReports.deletedAt));
+    .where(
+      and(eq(harvestReports.poolId, id), isNull(harvestReports.deletedAt))
+    );
 
   return successResponse(reply, "data fetched", data, 200);
 };
@@ -242,6 +244,8 @@ export const deleteHarvestReport = async (request, reply) => {
       .set({ deletedAt: now })
       .where(eq(harvestReports.id, id))
       .returning();
+
+    return successResponse(reply, "data deleted", null, 200);
   } catch (error) {
     error.cause.code === "22P02"
       ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)

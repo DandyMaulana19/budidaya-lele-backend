@@ -19,7 +19,9 @@ export const getMortalityReports = async (request, reply) => {
   const data = await db
     .select()
     .from(mortalityReports)
-    .where(eq(mortalityReports.poolId, id), isNull(mortalityReports.deletedAt));
+    .where(
+      and(eq(mortalityReports.poolId, id), isNull(mortalityReports.deletedAt))
+    );
 
   return successResponse(reply, "data fetched", data, 200);
 };
