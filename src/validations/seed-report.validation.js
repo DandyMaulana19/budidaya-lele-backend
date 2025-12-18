@@ -5,10 +5,10 @@ export const seedReportSchema = z.object({
     .string({
       required_error: "Report date is required",
     })
-    .nonempty("Report date is required")
-    .refine((date) => !isNaN(Date.parse(date)), {
-      message: "Invalid date format",
-    }),
+    .nonempty("Report date is required"),
+  // .refine((date) => !isNaN(Date.parse(date)), {
+  //   message: "Invalid date format",
+  // }),
 
   initialAmount: z
     .int("Initial amount must be an integer")
