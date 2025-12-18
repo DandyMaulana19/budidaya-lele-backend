@@ -132,8 +132,15 @@ export const createSeedReport = async (request, reply) => {
 export const updateSeedReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
+  const body = request.body;
 
-  const validation = seedReportSchema.safeParse(request.body);
+  const validation = seedReportSchema.safeParse({
+    reportDate: body.reportDate,
+    initialAmount: Number(body.initialAmount),
+    averageWeight: Number(body.averageWeight),
+    currentAmount: Number(body.currentAmount),
+    poolId: body.poolId,
+  });
 
   if (!validation.success) {
     const issues = validation.error.issues;
