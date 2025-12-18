@@ -165,6 +165,7 @@ export const updateFeedReport = async (request, reply) => {
 
   const validation = feedReportSchema.safeParse({
     reportDate: body.reportDate.value,
+    poolId: body.poolId.value,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -175,6 +176,7 @@ export const updateFeedReport = async (request, reply) => {
     const errorMessages = [...fileIssues, ...validationIssues].map(
       (issue) => issue.message
     );
+    console.log(validationIssues);
     return errorResponse(reply, errorMessages, null, 400);
   }
 
@@ -221,8 +223,26 @@ export const updateFeedReport = async (request, reply) => {
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
+    const [{ poolName }] = await db
+      .select({ poolName: pools.name })
+      .from(pools)
+      .where(eq(pools.id, body.poolId.value));
+
+    const activity = {
+      id: randomUUID(),
+      reportId: id,
+      user: request.user.name,
+      poolName,
+      activity: activityEnum.enumValues[4],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(activityLogs).values(activity);
+
     return successResponse(reply, "data updated", data, 200);
   } catch (error) {
+    console.log(error);
     error.cause.code === "22P02"
       ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
       : errorResponse(reply, "internal server error", null, 500);

@@ -172,6 +172,7 @@ export const updateHarvestReport = async (request, reply) => {
   const validation = harvestReportSchema.safeParse({
     reportDate: body.reportDate.value,
     quantity: Number(body.quantity.value),
+    poolId: body.poolId.value,
   });
 
   if (!fileValidation.success || !validation.success) {
@@ -220,8 +221,26 @@ export const updateHarvestReport = async (request, reply) => {
     if (!data || data.length === 0)
       return errorResponse(reply, `data with id ${id} not found`, null, 404);
 
+    const [{ poolName }] = await db
+      .select({ poolName: pools.name })
+      .from(pools)
+      .where(eq(pools.id, payload.poolId));
+
+    const activity = {
+      id: randomUUID(),
+      reportId: id,
+      user: request.user.name,
+      poolName,
+      activity: activityEnum.enumValues[5],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(activityLogs).values(activity);
+
     return successResponse(reply, "data updated", data, 200);
   } catch (error) {
+    console.log(error);
     error.cause.code === "22P02"
       ? errorResponse(reply, `invalid uuid format ${id}`, null, 403)
       : errorResponse(reply, error, null, 500);
