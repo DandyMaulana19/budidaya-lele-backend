@@ -5,6 +5,10 @@ export const activityEnum = pgEnum("condition", [
   "Create Harvest Report",
   "Create Seed Report",
   "Create Mortality Report",
+  "Update Feed Report",
+  "Update Harvest Report",
+  "Update Seed Report",
+  "Update Mortality Report",
 ]);
 
 export const activityLogs = pgTable("activity_logs", {
