@@ -10,3 +10,5 @@ export const fileSchema = z.object({
     { message: "Invalid file type. Allowed types: jpg, jpeg, heic" }
   ),
 });
+
+export const updateFileSchema = fileSchema.partial();
