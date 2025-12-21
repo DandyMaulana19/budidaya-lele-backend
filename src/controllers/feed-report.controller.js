@@ -5,7 +5,10 @@ import { and, eq, isNull } from "drizzle-orm";
 import { generateUploadPath } from "../utils/helper.js";
 import { errorResponse, successResponse } from "../utils/response.js";
 import { feedReportSchema } from "../validations/feed-report.validation.js";
-import { fileSchema } from "../validations/file.validation.js";
+import {
+  fileSchema,
+  updateFileSchema,
+} from "../validations/file.validation.js";
 import {
   pools,
   feedReports,
@@ -153,14 +156,10 @@ export const updateFeedReport = async (request, reply) => {
   const { id } = request.params;
   const body = request.body;
 
-  if (!body || !body.imageUrl) {
-    return errorResponse(reply, "imageUrl file is required", null, 400);
-  }
-
-  const fileValidation = fileSchema.safeParse({
-    fieldname: body.imageUrl.fieldname,
-    mimetype: body.imageUrl.mimetype,
-    filename: body.imageUrl.filename,
+  const fileValidation = updateFileSchema.safeParse({
+    fieldname: body.imageUrl?.fieldname,
+    mimetype: body.imageUrl?.mimetype,
+    filename: body.imageUrl?.filename,
   });
 
   const validation = feedReportSchema.safeParse({
@@ -181,23 +180,28 @@ export const updateFeedReport = async (request, reply) => {
   }
 
   try {
-    const { filePath, urlPath } = await generateUploadPath(
-      body.imageUrl.filename,
-      "feed-reports",
-      body.imageUrl.mimetype
-    );
+    let urlPath;
 
-    const buffer = await body.imageUrl.toBuffer();
-    let processedBuffer;
+    if (fileValidation.data.filename) {
+      const { filePath, urlPath: uploadedUrlPath } = await generateUploadPath(
+        body.imageUrl.filename,
+        "feed-reports",
+        body.imageUrl.mimetype
+      );
 
-    try {
-      processedBuffer = await sharp(buffer).webp({ quality: 50 }).toBuffer();
-    } catch (err) {
-      request.log?.error("Image processing failed, saving original:", err);
-      processedBuffer = buffer;
+      const buffer = await body.imageUrl.toBuffer();
+      let processedBuffer;
+
+      try {
+        processedBuffer = await sharp(buffer).webp({ quality: 50 }).toBuffer();
+      } catch (err) {
+        request.log?.error("Image processing failed, saving original:", err);
+        processedBuffer = buffer;
+      }
+
+      fs.writeFileSync(filePath, processedBuffer);
+      urlPath = uploadedUrlPath;
     }
-
-    fs.writeFileSync(filePath, processedBuffer);
 
     const now = new Date()
       .toLocaleString("sv-SE", { timeZone: "Asia/Jakarta" })
@@ -208,11 +212,19 @@ export const updateFeedReport = async (request, reply) => {
     if (!userId) {
       return errorResponse(reply, "User ID is required", null, 400);
     }
-    const payload = {
+
+    const payloadWithFile = {
       reportDate: validation.data.reportDate,
       imageUrl: urlPath,
       updatedAt: now,
     };
+
+    const payloadWithoutFile = {
+      reportDate: validation.data.reportDate,
+      updatedAt: now,
+    };
+
+    const payload = fileValidation ? payloadWithFile : payloadWithoutFile;
 
     const data = await db
       .update(feedReports)
