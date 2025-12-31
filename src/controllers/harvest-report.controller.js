@@ -221,13 +221,13 @@ export const updateHarvestReport = async (request, reply) => {
     }
 
     const payloadWithFile = {
-      reportDate: validation.data.reportDate,
+      ...validation.data,
       imageUrl: urlPath,
       updatedAt: now,
     };
 
     const payloadWithoutFile = {
-      reportDate: validation.data.reportDate,
+      ...validation.data,
       updatedAt: now,
     };
 

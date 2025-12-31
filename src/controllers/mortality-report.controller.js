@@ -222,13 +222,13 @@ export const updateMortalityReport = async (request, reply) => {
       return errorResponse(reply, "User ID is required", null, 400);
     }
     const payloadWithFile = {
-      reportDate: validation.data.reportDate,
+      ...validation.data,
       imageUrl: urlPath,
       updatedAt: now,
     };
 
     const payloadWithoutFile = {
-      reportDate: validation.data.reportDate,
+      ...validation.data,
       updatedAt: now,
     };
 
