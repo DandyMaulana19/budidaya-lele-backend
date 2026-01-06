@@ -30,25 +30,6 @@ export const getHarvestReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const getHarvestReportsByUser = async (request, reply) => {
-  const db = request.server?.db;
-  const userId = request.user.id;
-  const { id } = request.params;
-
-  const data = await db
-    .select()
-    .from(harvestReports)
-    .where(
-      and(
-        eq(harvestReports.userId, userId),
-        eq(harvestReports.poolId, id),
-        isNull(harvestReports.deletedAt)
-      )
-    );
-
-  return successResponse(reply, "data fetched", data, 200);
-};
-
 export const getHarvestReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;

@@ -1,4 +1,4 @@
-import { getPool, getPools } from "../controllers/pool.controller.js";
+import { getPools } from "../controllers/pool.controller.js";
 
 export default function poolRoutes(app) {
   app.get(

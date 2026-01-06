@@ -30,25 +30,6 @@ export const getMortalityReports = async (request, reply) => {
   return successResponse(reply, "data fetched", data, 200);
 };
 
-export const getMortalityReportsByUser = async (request, reply) => {
-  const db = request.server?.db;
-  const userId = request.user.id;
-  const { id } = request.params;
-
-  const data = await db
-    .select()
-    .from(mortalityReports)
-    .where(
-      and(
-        eq(mortalityReports.userId, userId),
-        eq(mortalityReports.poolId, id),
-        isNull(mortalityReports.deletedAt)
-      )
-    );
-
-  return successResponse(reply, "data fetched", data, 200);
-};
-
 export const getMortalityReport = async (request, reply) => {
   const db = request.server?.db;
   const { id } = request.params;
