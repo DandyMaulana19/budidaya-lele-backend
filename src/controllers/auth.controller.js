@@ -9,9 +9,7 @@ export const loginController = async (request, reply) => {
   const validation = authSchema.safeParse(request.body);
 
   if (!validation.success) {
-    return reply
-      .status(400)
-      .send({ error: "Invalid input", details: validation.error.issues });
+    return reply.status(400).send({ error: "Invalid input", details: validation.error.issues });
   }
 
   const { email, password } = validation.data;
@@ -46,12 +44,7 @@ export const loginController = async (request, reply) => {
       timeZone: "Asia/Jakarta",
     });
 
-    return successResponse(
-      reply,
-      "Login successful",
-      { expires_at, token, type },
-      200
-    );
+    return successResponse(reply, "Login successful", { expires_at, token, type }, 200);
   } catch (err) {
     request.log?.error(err);
     return reply.status(500).send({ error: "Internal server error" });
