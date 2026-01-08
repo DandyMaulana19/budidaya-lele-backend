@@ -3,7 +3,6 @@ import {
   deleteFeedReport,
   getFeedReport,
   getFeedReports,
-  getFeedReportsByUser,
   updateFeedReport,
 } from "../controllers/feed-report.controller.js";
 
@@ -13,14 +12,6 @@ export default function feedReportRoutes(app) {
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getFeedReports(request, reply);
-    }
-  );
-
-  app.get(
-    "/feed-reports/user/:id",
-    { preHandler: [app.authenticate] },
-    async (request, reply) => {
-      return getFeedReportsByUser(request, reply);
     }
   );
 

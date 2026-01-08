@@ -6,7 +6,7 @@ import {
   mortalityReports,
   seedReports,
 } from "../database/schema/index.js";
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 
 export const getActivityLogs = async (request, reply) => {
   const db = request.server?.db;
@@ -25,16 +25,20 @@ export const getTotalReports = async (request, reply) => {
 
   const totalFeedReports = await db
     .select({ count: count() })
-    .from(feedReports);
+    .from(feedReports)
+    .where(isNull(feedReports.deletedAt));
   const totalHarvestReports = await db
     .select({ count: count() })
-    .from(harvestReports);
+    .from(harvestReports)
+    .where(isNull(harvestReports.deletedAt));
   const totalMortalityReports = await db
     .select({ count: count() })
-    .from(mortalityReports);
+    .from(mortalityReports)
+    .where(isNull(mortalityReports.deletedAt));
   const totalSeedReports = await db
     .select({ count: count() })
-    .from(seedReports);
+    .from(seedReports)
+    .where(isNull(seedReports.deletedAt));
 
   return successResponse(
     reply,
@@ -56,19 +60,26 @@ export const getTotalReportsbyPool = async (request, reply) => {
   const totalFeedReports = await db
     .select({ count: count() })
     .from(feedReports)
-    .where(eq(feedReports.poolId, poolId));
+    .where(and(eq(feedReports.poolId, poolId), isNull(feedReports.deletedAt)));
   const totalHarvestReports = await db
     .select({ count: count() })
     .from(harvestReports)
-    .where(eq(harvestReports.poolId, poolId));
+    .where(
+      and(eq(harvestReports.poolId, poolId), isNull(harvestReports.deletedAt))
+    );
   const totalMortalityReports = await db
     .select({ count: count() })
     .from(mortalityReports)
-    .where(eq(mortalityReports.poolId, poolId));
+    .where(
+      and(
+        eq(mortalityReports.poolId, poolId),
+        isNull(mortalityReports.deletedAt)
+      )
+    );
   const totalSeedReports = await db
     .select({ count: count() })
     .from(seedReports)
-    .where(eq(seedReports.poolId, poolId));
+    .where(and(eq(seedReports.poolId, poolId), isNull(seedReports.deletedAt)));
 
   return successResponse(
     reply,

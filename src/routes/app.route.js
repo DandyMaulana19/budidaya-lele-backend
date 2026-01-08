@@ -1,8 +1,8 @@
 import {
   getActivityLogs,
+  getTotalReports,
   getTotalReportsbyPool,
 } from "../controllers/app.controller.js";
-import { getTotalReports } from "../controllers/app.controller.js";
 
 export default function appRoutes(app) {
   app.get(
