@@ -1,6 +1,6 @@
-import { db } from "../database/config/index.js";
 import { randomUUID } from "crypto";
-import { poolAccesses } from "../database/schema/pool-accesses.schema.js";
+import { db } from "../config/index.js";
+import { poolAccesses } from "../schema/index.js";
 
 export async function poolAccessSeeder(userRows = [], poolRows = []) {
   const now = new Date().toISOString();

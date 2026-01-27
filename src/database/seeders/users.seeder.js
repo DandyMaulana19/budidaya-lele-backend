@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
-import { db } from "../database/config/index.js";
-import { users } from "../database/schema/users.schema.js";
+import { db } from "../config/index.js";
+import { users } from "../schema/index.js";
 import { randomUUID } from "crypto";
 
 export async function userSeeder() {

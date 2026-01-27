@@ -10,8 +10,8 @@ export const changePassword = async (request, reply) => {
   const body = request.body;
 
   const validation = changePasswordSchema.safeParse({
-    oldPassword: body.oldPassword?.value,
-    newPassword: body.newPassword?.value,
+    oldPassword: body.oldPassword,
+    newPassword: body.newPassword,
   });
 
   if (!validation.success) {
@@ -36,10 +36,7 @@ export const changePassword = async (request, reply) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db
-      .update(users)
-      .set({ password: hashedPassword })
-      .where(eq(users.id, id));
+    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
 
     return successResponse(reply, "Password changed successfully", null, 200);
   } catch (error) {

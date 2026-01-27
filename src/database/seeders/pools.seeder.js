@@ -1,5 +1,5 @@
-import { db } from "../database/config/index.js";
-import { pools } from "../database/schema/pools.schema.js";
+import { db } from "../config/index.js";
+import { pools } from "../schema/index.js";
 import { randomUUID } from "crypto";
 
 export async function poolSeeder(userRows) {
