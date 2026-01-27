@@ -17,13 +17,16 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "fastify": "^5.6.1",
+    "mqtt": "^5.14.1",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.6"
+    "drizzle-kit": "^0.31.6",
+    "fastify-mqtt": "^1.0.0"
   }
 }
