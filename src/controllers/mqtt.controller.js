@@ -81,10 +81,10 @@ export const sendPhLimit = async (request, reply) => {
 export const getPoolData = async (request, reply) => {
   try {
     const { nodeId } = request.params;
-    // const data = await request.server.mqttService.getMqttPoolData(nodeId);
-    const data = request.server.io
-      .to(`pool:${nodeId}`)
-      .emit("pool-update", data);
+    const data = await request.server.mqttService.getMqttPoolData(nodeId);
+    // const data = request.server.io
+    //   .to(`pool:${nodeId}`)
+    //   .emit("pool-update", data);
 
     if (data) {
       return successResponse(

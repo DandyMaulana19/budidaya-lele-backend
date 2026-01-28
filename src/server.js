@@ -20,6 +20,7 @@ import deviceRoutes from "./routes/device.route.js";
 import { errorResponse } from "./utils/response.js";
 import * as mqttService from "./services/mqtt.service.js";
 import socketPlugin from "./plugins/socket.js";
+import mqtt from "mqtt";
 
 const app = fastify({ logger: true });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,6 +36,8 @@ mqttService.connect(process.env.MQTT_URL, {
   username: process.env.MQTT_USERNAME,
   password: process.env.MQTT_PASSWORD,
 });
+
+mqttService.setIO(app.io);
 
 app.decorate("mqttService", mqttService);
 
@@ -86,7 +89,7 @@ const start = async () => {
   try {
     const address = await app.listen({
       port: 3000,
-      host: process.env.HOST,
+      // host: process.env.HOST,
     });
     app.log.info(`Server listening at ${address}`);
   } catch (err) {

@@ -1,6 +1,12 @@
 import mqtt from "mqtt";
 
 // State
+let io = null;
+
+export const setIO = (_io) => {
+  io = _io;
+};
+
 let client = null;
 let isConnected = false;
 const poolData = new Map();
@@ -55,12 +61,28 @@ const handlePoolData = (topic, payload) => {
   const nodeId = topic.replace("iot/kolam/", "");
   const data = JSON.parse(payload.toString());
 
-  poolData.set(nodeId, {
+  const enrichedData = {
     ...data,
     receivedAt: new Date().toISOString(),
-  });
+  };
 
-  console.log(`📩 Node ${nodeId}:`, data);
+  poolData.set(nodeId, enrichedData);
+
+  // 🔥 REALTIME PUSH
+  if (io) {
+    io.to(`pool:${nodeId}`).emit("pool-update", enrichedData);
+  }
+
+  console.log(`📩 Node ${nodeId}:`, enrichedData);
+  // const nodeId = topic.replace("iot/kolam/", "");
+  // const data = JSON.parse(payload.toString());
+
+  // poolData.set(nodeId, {
+  //   ...data,
+  //   receivedAt: new Date().toISOString(),
+  // });
+
+  // console.log(`📩 Node ${nodeId}:`, data);
 };
 
 // ============================================================================
