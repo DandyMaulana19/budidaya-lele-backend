@@ -6,3 +6,4 @@ export * from "./feed-reports.schema.js";
 export * from "./harvest-reports.schema.js";
 export * from "./mortality-reports.schema.js";
 export * from "./seed-reports.schema.js";
+export * from "./user-device-tokens.schema.js";
