@@ -5,3 +5,4 @@ export * from "./harvest-report.validation.js";
 export * from "./mortality-report.validation.js";
 export * from "./seed-report.validation.js";
 export * from "./user.validation.js";
+export * from "./device.validation.js";

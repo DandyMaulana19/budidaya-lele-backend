@@ -16,6 +16,7 @@ import harvestReportRoutes from "./routes/harvest-report.route.js";
 import appRoutes from "./routes/app.route.js";
 import poolRoutes from "./routes/pool.route.js";
 import mqttRoutes from "./routes/mqtt.route.js";
+import deviceRoutes from "./routes/device.route.js";
 import { errorResponse } from "./utils/response.js";
 import * as mqttService from "./services/mqtt.service.js";
 import socketPlugin from "./plugins/socket.js";
@@ -79,6 +80,7 @@ app.register(moratlityReportRoutes, { prefix: "/api" });
 app.register(harvestReportRoutes, { prefix: "/api" });
 app.register(poolRoutes, { prefix: "/api" });
 app.register(mqttRoutes, { prefix: "/api" });
+app.register(deviceRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {
