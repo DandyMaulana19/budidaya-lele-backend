@@ -49,7 +49,7 @@ export const getTotalReports = async (request, reply) => {
       totalMortalityReports: totalMortalityReports[0]["count"],
       totalSeedReports: totalSeedReports[0]["count"],
     },
-    200
+    200,
   );
 };
 
@@ -65,7 +65,7 @@ export const getTotalReportsbyPool = async (request, reply) => {
     .select({ count: count() })
     .from(harvestReports)
     .where(
-      and(eq(harvestReports.poolId, poolId), isNull(harvestReports.deletedAt))
+      and(eq(harvestReports.poolId, poolId), isNull(harvestReports.deletedAt)),
     );
   const totalMortalityReports = await db
     .select({ count: count() })
@@ -73,8 +73,8 @@ export const getTotalReportsbyPool = async (request, reply) => {
     .where(
       and(
         eq(mortalityReports.poolId, poolId),
-        isNull(mortalityReports.deletedAt)
-      )
+        isNull(mortalityReports.deletedAt),
+      ),
     );
   const totalSeedReports = await db
     .select({ count: count() })
@@ -90,6 +90,6 @@ export const getTotalReportsbyPool = async (request, reply) => {
       totalMortalityReports: totalMortalityReports[0]["count"],
       totalSeedReports: totalSeedReports[0]["count"],
     },
-    200
+    200,
   );
 };

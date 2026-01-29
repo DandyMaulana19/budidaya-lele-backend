@@ -19,7 +19,6 @@ import mqttRoutes from "./routes/mqtt.route.js";
 import { errorResponse } from "./utils/response.js";
 import * as mqttService from "./services/mqtt.service.js";
 import socketPlugin from "./plugins/socket.js";
-import mqtt from "mqtt";
 
 const app = fastify({ logger: true });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,8 +34,6 @@ mqttService.connect(process.env.MQTT_URL, {
   username: process.env.MQTT_USERNAME,
   password: process.env.MQTT_PASSWORD,
 });
-
-mqttService.setIO(app.io);
 
 app.decorate("mqttService", mqttService);
 
@@ -59,19 +56,19 @@ app.register(fastifyStatic, {
 });
 
 // Graceful shutdown
-process.on("SIGINT", async () => {
-  app.log.info("SIGINT received, shutting down gracefully");
-  mqttService.disconnect();
-  await app.close();
-  process.exit(0);
-});
+// process.on("SIGINT", async () => {
+//   app.log.info("SIGINT received, shutting down gracefully");
+//   mqttService.disconnect();
+//   await app.close();
+//   process.exit(0);
+// });
 
-process.on("SIGTERM", async () => {
-  app.log.info("SIGTERM received, shutting down gracefully");
-  mqttService.disconnect();
-  await app.close();
-  process.exit(0);
-});
+// process.on("SIGTERM", async () => {
+//   app.log.info("SIGTERM received, shutting down gracefully");
+//   mqttService.disconnect();
+//   await app.close();
+//   process.exit(0);
+// });
 
 app.register(authRoutes, { prefix: "/api" });
 app.register(appRoutes, { prefix: "/api" });

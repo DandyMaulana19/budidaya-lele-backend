@@ -1,36 +1,26 @@
 import mqtt from "mqtt";
 
-// State
-let io = null;
-
-export const setIO = (_io) => {
-  io = _io;
-};
-
 let client = null;
 let isConnected = false;
 const poolData = new Map();
 
-// ============================================================================
 // Connection Management
-// ============================================================================
-
 export const connect = (brokerUrl, options = {}) => {
   client = mqtt.connect(brokerUrl, options);
 
   client.on("connect", () => {
     isConnected = true;
-    console.log("✅ Connected to MQTT broker");
+    console.log("Connected to MQTT broker");
     subscribeToAllPools();
   });
 
   client.on("error", (error) => {
-    console.error("❌ MQTT connection error:", error);
+    console.error("MQTT connection error:", error);
   });
 
   client.on("close", () => {
     isConnected = false;
-    console.log("⚠️ Disconnected from MQTT broker");
+    console.log("Disconnected from MQTT broker");
   });
 
   client.on("message", handleIncomingMessage);
@@ -43,10 +33,7 @@ export const disconnect = () => {
   }
 };
 
-// ============================================================================
 // Message Handlers
-// ============================================================================
-
 const handleIncomingMessage = (topic, payload) => {
   try {
     if (topic.startsWith("iot/kolam/")) {
@@ -59,42 +46,26 @@ const handleIncomingMessage = (topic, payload) => {
 
 const handlePoolData = (topic, payload) => {
   const nodeId = topic.replace("iot/kolam/", "");
-  const data = JSON.parse(payload.toString());
+  const datas = JSON.parse(payload.toString());
 
-  const enrichedData = {
-    ...data,
+  console.log(datas);
+
+  const data = {
+    ...datas,
     receivedAt: new Date().toISOString(),
   };
 
-  poolData.set(nodeId, enrichedData);
-
-  // 🔥 REALTIME PUSH
-  if (io) {
-    io.to(`pool:${nodeId}`).emit("pool-update", enrichedData);
-  }
-
-  console.log(`📩 Node ${nodeId}:`, enrichedData);
-  // const nodeId = topic.replace("iot/kolam/", "");
-  // const data = JSON.parse(payload.toString());
-
-  // poolData.set(nodeId, {
-  //   ...data,
-  //   receivedAt: new Date().toISOString(),
-  // });
-
+  poolData.set(nodeId, data);
   // console.log(`📩 Node ${nodeId}:`, data);
 };
 
-// ============================================================================
 // Subscribe Operations
-// ============================================================================
-
 const subscribeToAllPools = () => {
   if (!isConnected) return;
 
   client.subscribe("iot/kolam/+", { qos: 1 }, (err) => {
     if (!err) {
-      console.log("📡 Subscribed to iot/kolam/+");
+      console.log("Subscribed to iot/kolam/");
     } else {
       console.error("Failed to subscribe:", err);
     }
@@ -120,10 +91,7 @@ export const subscribe = (topic, callback) => {
   });
 };
 
-// ============================================================================
 // Publish Operations
-// ============================================================================
-
 export const publish = (topic, message, options = {}) => {
   if (!isConnected) {
     console.error("MQTT client is not connected");
@@ -162,10 +130,7 @@ export const sendMqttPhLimit = (payload) => {
   }
 };
 
-// ============================================================================
 // Data Retrieval
-// ============================================================================
-
 export const getMqttPoolData = (nodeId) => {
   try {
     return poolData.get(nodeId.toString()) || null;
@@ -177,7 +142,7 @@ export const getMqttPoolData = (nodeId) => {
 
 export const getAllMqttPoolData = () => {
   try {
-    return Object.fromEntries(poolData);
+    return Object.values(Object.fromEntries(poolData));
   } catch (error) {
     console.error(error);
     return {};

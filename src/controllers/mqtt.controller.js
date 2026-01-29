@@ -82,9 +82,6 @@ export const getPoolData = async (request, reply) => {
   try {
     const { nodeId } = request.params;
     const data = await request.server.mqttService.getMqttPoolData(nodeId);
-    // const data = request.server.io
-    //   .to(`pool:${nodeId}`)
-    //   .emit("pool-update", data);
 
     if (data) {
       return successResponse(
@@ -114,9 +111,14 @@ export const getPoolData = async (request, reply) => {
 
 export const getAllPoolData = async (request, reply) => {
   try {
-    const data = request.server.mqttService.getAllMqttPoolData();
+    const data = await request.server.mqttService.getAllMqttPoolData();
 
-    return successResponse(reply, "All pool data retrieved successfully", data);
+    return successResponse(
+      reply,
+      "All pool data retrieved successfully",
+      data,
+      200,
+    );
   } catch (error) {
     request.server.log.error(error);
     return errorResponse(
