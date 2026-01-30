@@ -1,9 +1,10 @@
-import { successResponse } from "../utils/response.js";
+import { errorResponse, successResponse } from "../utils/response.js";
 import {
   activityLogs,
   feedReports,
   harvestReports,
   mortalityReports,
+  poolDatas,
   seedReports,
 } from "../database/schema/index.js";
 import { and, count, desc, eq, isNull } from "drizzle-orm";
@@ -92,4 +93,44 @@ export const getTotalReportsbyPool = async (request, reply) => {
     },
     200,
   );
+};
+
+export const getChartAllPool = async (request, reply) => {
+  const db = request.server?.db;
+
+  try {
+    const data = await db.select().from(poolDatas);
+
+    return successResponse(
+      reply,
+      "All pool data retrieved successfully",
+      data,
+      200,
+    );
+  } catch (error) {
+    console.log(error);
+    return errorResponse(reply, "Failed to retrieve pool data", error, 500);
+  }
+};
+
+export const getChartPool = async (request, reply) => {
+  const db = request.server?.db;
+  const id = request.params?.id;
+
+  try {
+    const data = await db
+      .select()
+      .from(poolDatas)
+      .where(eq(poolDatas.poolId, id));
+
+    return successResponse(
+      reply,
+      `Pool ${id} data retrieved successfully`,
+      data,
+      200,
+    );
+  } catch (error) {
+    console.log(error);
+    return errorResponse(reply, "Failed to retrieve pool data", error, 500);
+  }
 };

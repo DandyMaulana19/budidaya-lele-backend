@@ -63,10 +63,8 @@ const handlePoolData = (topic, payload) => {
 const subscribeToAllPools = () => {
   if (!isConnected) return;
 
-  client.subscribe("iot/kolam/+", { qos: 1 }, (err) => {
-    if (!err) {
-      console.log("Subscribed to iot/kolam/");
-    } else {
+  client.subscribe("iot/kolam/#", { qos: 1 }, (err) => {
+    if (err) {
       console.error("Failed to subscribe:", err);
     }
   });

@@ -20,12 +20,15 @@ import deviceRoutes from "./routes/device.route.js";
 import { errorResponse } from "./utils/response.js";
 import * as mqttService from "./services/mqtt.service.js";
 import socketPlugin from "./plugins/socket.js";
+import fastifySchedule from "@fastify/schedule";
+import { job } from "./utils/jobs.js";
 
 const app = fastify({ logger: true });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.register(dbPlugin);
 app.register(socketPlugin);
+app.register(fastifySchedule);
 
 app.register(fastifyJwt, {
   secret: process.env.JWT_SECRET,
@@ -81,6 +84,10 @@ app.register(harvestReportRoutes, { prefix: "/api" });
 app.register(poolRoutes, { prefix: "/api" });
 app.register(mqttRoutes, { prefix: "/api" });
 app.register(deviceRoutes, { prefix: "/api" });
+
+app.ready().then(() => {
+  app.scheduler.addCronJob(job);
+});
 
 const start = async () => {
   try {
