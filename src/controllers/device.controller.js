@@ -1,12 +1,12 @@
 import { eq, and } from "drizzle-orm";
 import { userDeviceTokens } from "../database/schema/index.js";
-import { deviceSchema, unregisterSchema } from "../validations/index.js";
+import { registerDeviceSchema, unregisterDeviceSchema } from "../validations/index.js";
 import { errorResponse, successResponse } from "../utils/response.js";
 import { randomUUID } from "crypto";
 
-export const registerDeviceController = async (request, reply) => {
+export const registerDevice = async (request, reply) => {
     const db = request.server.db;
-    const validation = deviceSchema.safeParse(request.body);
+    const validation = registerDeviceSchema.safeParse(request.body);
 
     if (!validation.success) {
         return reply.status(400).send({
@@ -16,7 +16,7 @@ export const registerDeviceController = async (request, reply) => {
         });
     }
 
-    const { fcm_token, device_name, device_type } = validation.data;
+    const { fcmToken, deviceName, deviceType } = validation.data;
     const userId = request.user.id; // From JWT
 
     try {
@@ -27,7 +27,7 @@ export const registerDeviceController = async (request, reply) => {
             .where(
                 and(
                     eq(userDeviceTokens.userId, userId),
-                    eq(userDeviceTokens.fcmToken, fcm_token)
+                    eq(userDeviceTokens.fcmToken, fcmToken)
                 )
             )
             .limit(1);
@@ -37,8 +37,8 @@ export const registerDeviceController = async (request, reply) => {
             await db
                 .update(userDeviceTokens)
                 .set({
-                    deviceName: device_name || existing[0].deviceName,
-                    deviceType: device_type,
+                    deviceName: deviceName || existing[0].deviceName,
+                    deviceType: deviceType || existing[0].deviceType,
                     lastActive: new Date().toISOString(),
                 })
                 .where(eq(userDeviceTokens.id, existing[0].id));
@@ -49,9 +49,9 @@ export const registerDeviceController = async (request, reply) => {
             await db.insert(userDeviceTokens).values({
                 id: randomUUID(),
                 userId: userId,
-                fcmToken: fcm_token,
-                deviceName: device_name,
-                deviceType: device_type,
+                fcmToken: fcmToken,
+                deviceName: deviceName,
+                deviceType: deviceType,
                 lastActive: new Date().toISOString(),
                 createdAt: new Date().toISOString(),
             });
@@ -64,9 +64,9 @@ export const registerDeviceController = async (request, reply) => {
     }
 };
 
-export const unregisterDeviceController = async (request, reply) => {
+export const unregisterDevice = async (request, reply) => {
     const db = request.server.db;
-    const validation = unregisterSchema.safeParse(request.body);
+    const validation = unregisterDeviceSchema.safeParse(request.body);
 
     if (!validation.success) {
         return reply.status(400).send({
@@ -76,7 +76,7 @@ export const unregisterDeviceController = async (request, reply) => {
         });
     }
 
-    const { fcm_token } = validation.data;
+    const { fcmToken } = validation.data;
     const userId = request.user.id; // From JWT
 
     try {
@@ -85,7 +85,7 @@ export const unregisterDeviceController = async (request, reply) => {
             .where(
                 and(
                     eq(userDeviceTokens.userId, userId),
-                    eq(userDeviceTokens.fcmToken, fcm_token)
+                    eq(userDeviceTokens.fcmToken, fcmToken)
                 )
             );
 
