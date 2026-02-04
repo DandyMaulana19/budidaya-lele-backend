@@ -1,6 +1,7 @@
-import { promises } from "fs";
 import fs from "fs";
 import path from "path";
+import dayjs from "dayjs";
+import { promises } from "fs";
 import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
 
@@ -47,6 +48,11 @@ export const generateUploadPath = async (
   return { filePath, urlPath };
 };
 
+const wibTimezone = (date) => {
+  const wib = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  return wib.toISOString().replace("Z", "+07:00");
+};
+
 export const writeNodeLog = ({ node_id, ph, temp, createdAt }) => {
   const nodeId = String(node_id);
   const date = createdAt.toISOString().split("T")[0];
@@ -62,8 +68,63 @@ export const writeNodeLog = ({ node_id, ph, temp, createdAt }) => {
     node_id: nodeId,
     ph,
     temp,
-    createdAt,
+    createdAt: wibTimezone(createdAt),
   };
 
   fs.appendFileSync(filePath, JSON.stringify(logData) + "\n");
+};
+
+export const readLogFile = async (filePath) => {
+  try {
+    const content = await promises.readFile(filePath, "utf8");
+    return content
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+  } catch (error) {
+    console.warn(`Failed to read file ${filePath}:`, error.message);
+    return [];
+  }
+};
+
+export const getLogs = async ({ kolam = "0", range = "today" }) => {
+  const baseDir = path.resolve("src/logs");
+
+  const kolamFolders =
+    kolam === "0" ? await promises.readdir(baseDir) : [`kolam-${kolam}`];
+
+  const today = dayjs();
+  let startDate, endDate;
+  const end = today.endOf("day");
+  switch (range) {
+    case "week":
+      startDate = today.subtract(6, "day").startOf("day");
+      break;
+    case "month":
+      startDate = today.subtract(29, "day").startOf("day");
+      break;
+    default:
+      startDate = today.startOf("day");
+  }
+
+  const datesToRead = [];
+  for (
+    let d = startDate;
+    d.isBefore(end) || d.isSame(end, "day");
+    d = d.add(1, "day")
+  ) {
+    datesToRead.push(d.format("YYYY-MM-DD"));
+  }
+
+  const allLogs = [];
+
+  for (const k of kolamFolders) {
+    for (const date of datesToRead) {
+      const filePath = path.join(baseDir, k, `${date}.log`);
+      const logs = await readLogFile(filePath);
+      allLogs.push(...logs);
+    }
+  }
+
+  return allLogs;
 };

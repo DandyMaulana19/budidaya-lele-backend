@@ -1,4 +1,6 @@
+import dayjs from "dayjs";
 import { successResponse, errorResponse } from "../utils/response.js";
+import { getLogs } from "../utils/helper.js";
 
 export const sendTemperatureLimit = async (request, reply) => {
   try {
@@ -146,6 +148,30 @@ export const publishMessage = async (request, reply) => {
       reply,
       "Failed to publish message",
       error.message,
+      500,
+    );
+  }
+};
+
+export const chartPool = async (request, reply) => {
+  const { nodeId } = request.params;
+  const { range } = request.query;
+
+  try {
+    const data = await getLogs({ kolam: nodeId, range });
+
+    return successResponse(
+      reply,
+      "Pool chart data retrieved successfully",
+      data,
+      200,
+    );
+  } catch (error) {
+    console.log(error);
+    return errorResponse(
+      reply,
+      "Failed to retrieve pool chart data",
+      error,
       500,
     );
   }

@@ -10,7 +10,7 @@ export default function appRoutes(app) {
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getActivityLogs(request, reply);
-    }
+    },
   );
 
   app.get(
@@ -18,7 +18,7 @@ export default function appRoutes(app) {
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getTotalReports(request, reply);
-    }
+    },
   );
 
   app.get(
@@ -26,6 +26,6 @@ export default function appRoutes(app) {
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       return getTotalReportsbyPool(request, reply);
-    }
+    },
   );
 }
