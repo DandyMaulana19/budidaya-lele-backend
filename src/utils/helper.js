@@ -57,7 +57,7 @@ export const writeNodeLog = ({ node_id, ph, temp, createdAt }) => {
   const nodeId = String(node_id);
   const date = createdAt.toISOString().split("T")[0];
 
-  const baseDir = path.join(process.cwd(), "/src/logs");
+  const baseDir = path.join(process.cwd(), "/src/.logs");
   const nodeDir = path.join(baseDir, `kolam-${nodeId}`);
 
   ensureLogDir(nodeDir);
@@ -88,7 +88,7 @@ export const readLogFile = async (filePath) => {
 };
 
 export const getLogs = async ({ kolam = "0", range = "today" }) => {
-  const baseDir = path.resolve("src/logs");
+  const baseDir = path.resolve("src/.logs");
 
   const kolamFolders =
     kolam === "0" ? await promises.readdir(baseDir) : [`kolam-${kolam}`];
