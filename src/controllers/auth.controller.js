@@ -9,7 +9,9 @@ export const loginController = async (request, reply) => {
   const validation = authSchema.safeParse(request.body);
 
   if (!validation.success) {
-    return reply.status(400).send({ error: "Invalid input", details: validation.error.issues });
+    return reply
+      .status(400)
+      .send({ error: "Invalid input", details: validation.error.issues });
   }
 
   const { email, password } = validation.data;
@@ -37,14 +39,19 @@ export const loginController = async (request, reply) => {
       role: user[0].role,
     };
     const token = request.server.jwt.sign(payload, {
-      expiresIn: "1h",
+      expiresIn: "2h",
     });
 
-    const expires_at = new Date(Date.now() + 3600000).toLocaleString("sv-SE", {
+    const expires_at = new Date(Date.now() + 7200000).toLocaleString("sv-SE", {
       timeZone: "Asia/Jakarta",
     });
 
-    return successResponse(reply, "Login successful", { expires_at, token, type }, 200);
+    return successResponse(
+      reply,
+      "Login successful",
+      { expires_at, token, type },
+      200,
+    );
   } catch (err) {
     request.log?.error(err);
     return reply.status(500).send({ error: "Internal server error" });

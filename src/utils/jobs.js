@@ -36,4 +36,4 @@ const task = new AsyncTask("iot-data-task", async () => {
   });
 });
 
-export const job = new SimpleIntervalJob({ seconds: 10 }, task);
+export const job = new SimpleIntervalJob({ seconds: 60 }, task);
