@@ -20,7 +20,7 @@ async function mqttRoutes(app) {
   );
 
   app.post(
-    "/iot/temp",
+    "/iot/temperature",
     { onRequest: [app.authenticate] },
     mqttController.sendTemperatureLimit,
   );
