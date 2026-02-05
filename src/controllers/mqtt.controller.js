@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { successResponse, errorResponse } from "../utils/response.js";
 import { getLogs } from "../utils/helper.js";
 
@@ -17,10 +16,8 @@ export const sendTemperatureLimit = async (request, reply) => {
       return successResponse(
         reply,
         "Temperature limit configuration broadcasted to all devices",
-        {
-          topic: "iot/config/limit/temp",
-          limits: { warn_low, warn_high, alarm_low, alarm_high },
-        },
+        null,
+        200,
       );
     } else {
       return errorResponse(
@@ -31,7 +28,7 @@ export const sendTemperatureLimit = async (request, reply) => {
       );
     }
   } catch (error) {
-    request.server.log.error(error);
+    console.log(error);
     return errorResponse(
       reply,
       "Failed to send temperature limit configuration",
@@ -42,9 +39,9 @@ export const sendTemperatureLimit = async (request, reply) => {
 };
 
 export const sendPhLimit = async (request, reply) => {
-  try {
-    const { warn_low, warn_high, alarm_low, alarm_high } = request.body;
+  const { warn_low, warn_high, alarm_low, alarm_high } = request.body;
 
+  try {
     const success = await request.server.mqttService.sendMqttPhLimit({
       warn_low,
       warn_high,
@@ -56,10 +53,8 @@ export const sendPhLimit = async (request, reply) => {
       return successResponse(
         reply,
         "pH limit configuration broadcasted to all devices",
-        {
-          topic: "iot/config/limit/ph",
-          limits: { warn_low, warn_high, alarm_low, alarm_high },
-        },
+        null,
+        200,
       );
     } else {
       return errorResponse(
@@ -70,7 +65,7 @@ export const sendPhLimit = async (request, reply) => {
       );
     }
   } catch (error) {
-    request.server.log.error(error);
+    console.log(error);
     return errorResponse(
       reply,
       "Failed to send pH limit configuration",
@@ -101,7 +96,7 @@ export const getPoolData = async (request, reply) => {
       );
     }
   } catch (error) {
-    request.server.log.error(error);
+    console.log(error);
     return errorResponse(
       reply,
       "Failed to retrieve pool data",
@@ -122,7 +117,7 @@ export const getAllPoolData = async (request, reply) => {
       200,
     );
   } catch (error) {
-    request.server.log.error(error);
+    console.log(error);
     return errorResponse(
       reply,
       "Failed to retrieve pool data",
@@ -143,7 +138,7 @@ export const publishMessage = async (request, reply) => {
       message,
     });
   } catch (error) {
-    request.server.log.error(error);
+    console.log(error);
     return errorResponse(
       reply,
       "Failed to publish message",
