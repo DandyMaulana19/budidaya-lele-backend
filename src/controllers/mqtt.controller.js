@@ -150,10 +150,10 @@ export const publishMessage = async (request, reply) => {
 
 export const chartPool = async (request, reply) => {
   const { nodeId } = request.params;
-  const { range } = request.query;
+  const { startDate, endDate } = request.query;
 
   try {
-    const data = await getLogs({ kolam: nodeId, range });
+    const data = await getLogs({ kolam: nodeId, startDate, endDate });
 
     return successResponse(
       reply,

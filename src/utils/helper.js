@@ -87,29 +87,60 @@ export const readLogFile = async (filePath) => {
   }
 };
 
-export const getLogs = async ({ kolam = "0", range = "today" }) => {
+export const getLogs = async ({ kolam = "0", startDate, endDate }) => {
   const baseDir = path.resolve("src/.logs");
+
+  //   const kolamFolders =
+  //     kolam === "0" ? await promises.readdir(baseDir) : [`kolam-${kolam}`];
+
+  //   const today = dayjs();
+  //   let startDate, endDate;
+  //   const end = today.endOf("day");
+  //   switch (range) {
+  //     case "week":
+  //       startDate = today.subtract(6, "day").startOf("day");
+  //       break;
+  //     case "month":
+  //       startDate = today.subtract(29, "day").startOf("day");
+  //       break;
+  //     default:
+  //       startDate = today.startOf("day");
+  //   }
+
+  //   const datesToRead = [];
+  //   for (
+  //     let d = startDate;
+  //     d.isBefore(end) || d.isSame(end, "day");
+  //     d = d.add(1, "day")
+  //   ) {
+  //     datesToRead.push(d.format("YYYY-MM-DD"));
+  //   }
+
+  //   const allLogs = [];
+
+  //   for (const k of kolamFolders) {
+  //     for (const date of datesToRead) {
+  //       const filePath = path.join(baseDir, k, `${date}.log`);
+  //       const logs = await readLogFile(filePath);
+  //       allLogs.push(...logs);
+  //     }
+  //   }
+
+  //   return allLogs;
 
   const kolamFolders =
     kolam === "0" ? await promises.readdir(baseDir) : [`kolam-${kolam}`];
 
-  const today = dayjs();
-  let startDate, endDate;
-  const end = today.endOf("day");
-  switch (range) {
-    case "week":
-      startDate = today.subtract(6, "day").startOf("day");
-      break;
-    case "month":
-      startDate = today.subtract(29, "day").startOf("day");
-      break;
-    default:
-      startDate = today.startOf("day");
+  const start = dayjs(startDate).startOf("day");
+  const end = dayjs(endDate).endOf("day");
+
+  if (!start.isValid() || !end.isValid()) {
+    throw new Error("Format tanggal tidak valid (YYYY-MM-DD)");
   }
 
   const datesToRead = [];
   for (
-    let d = startDate;
+    let d = start;
     d.isBefore(end) || d.isSame(end, "day");
     d = d.add(1, "day")
   ) {
