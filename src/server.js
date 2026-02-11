@@ -17,11 +17,12 @@ import appRoutes from "./routes/app.route.js";
 import poolRoutes from "./routes/pool.route.js";
 import mqttRoutes from "./routes/mqtt.route.js";
 import deviceRoutes from "./routes/device.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 import { errorResponse } from "./utils/response.js";
 import * as mqttService from "./services/mqtt.service.js";
 import socketPlugin from "./plugins/socket.js";
 import fastifySchedule from "@fastify/schedule";
-import { job } from "./utils/jobs.js";
+import { job, notifJob } from "./utils/jobs.js";
 
 const app = fastify({ logger: true });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,16 +85,18 @@ app.register(harvestReportRoutes, { prefix: "/api" });
 app.register(poolRoutes, { prefix: "/api" });
 app.register(mqttRoutes, { prefix: "/api" });
 app.register(deviceRoutes, { prefix: "/api" });
+app.register(notificationRoutes, { prefix: "/api" });
 
 app.ready().then(() => {
   app.scheduler.addCronJob(job);
+  app.scheduler.addSimpleIntervalJob(notifJob);
 });
 
 const start = async () => {
   try {
     const address = await app.listen({
       port: 3000,
-      // host: process.env.HOST,
+      host: process.env.HOST,
     });
     app.log.info(`Server listening at ${address}`);
   } catch (err) {
