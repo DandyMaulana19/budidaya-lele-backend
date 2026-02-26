@@ -39,12 +39,15 @@ export const loginController = async (request, reply) => {
       role: user[0].role,
     };
     const token = request.server.jwt.sign(payload, {
-      expiresIn: "2h",
+      expiresIn: "7d",
     });
 
-    const expires_at = new Date(Date.now() + 7200000).toLocaleString("sv-SE", {
-      timeZone: "Asia/Jakarta",
-    });
+    const expires_at = new Date(Date.now() + 604800000).toLocaleString(
+      "sv-SE",
+      {
+        timeZone: "Asia/Jakarta",
+      },
+    );
 
     return successResponse(
       reply,
