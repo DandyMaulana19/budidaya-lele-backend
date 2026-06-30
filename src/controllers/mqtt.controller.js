@@ -171,3 +171,33 @@ export const chartPool = async (request, reply) => {
     );
   }
 };
+
+export const getFeederData = async (request, reply) => {
+  try {
+    const data = request.server.feederService.getFeederData();
+
+    if (data) {
+      return successResponse(
+        reply,
+        `Fish feeder status data retrieved successfully`,
+        data,
+        200,
+      );
+    } else {
+      return errorResponse(
+        reply,
+        `No data available for fish feeder. Waiting for device to send data...`,
+        null,
+        404,
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    return errorResponse(
+      reply,
+      "Failed to retrieve feeder data",
+      error.message,
+      500,
+    );
+  }
+};

@@ -30,6 +30,12 @@ async function mqttRoutes(app) {
     { onRequest: [app.authenticate] },
     mqttController.sendPhLimit,
   );
+
+  app.get(
+    "/iot/feeder",
+    { onRequest: [app.authenticate] },
+    mqttController.getFeederData,
+  );
 }
 
 export default mqttRoutes;

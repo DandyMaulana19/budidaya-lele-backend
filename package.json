@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "generate": "npx drizzle-kit generate --name=init",
     "migration": "npx drizzle-kit migrate",
     "seed": "node src/database/seeders/index.js"
